@@ -1,19 +1,18 @@
 package ac.house.studio.weathercomplications.data
 
 import android.content.Context
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+private val Context.weatherDataStore by preferencesDataStore(name = "weather_cache")
+
 class WeatherDataStore(context: Context) : WeatherCache {
 
-    private val dataStore = PreferenceDataStoreFactory.create(
-        produceFile = { context.preferencesDataStoreFile("weather_cache") }
-    )
+    private val dataStore = context.applicationContext.weatherDataStore
 
     private val weatherJsonKey = stringPreferencesKey("weather_json")
 

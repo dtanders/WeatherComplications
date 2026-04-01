@@ -5,6 +5,7 @@ import android.location.Location
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -20,11 +21,13 @@ class LocationRepository(private val context: Context) {
                     if (loc != null) {
                         cont.resume(LatLon(loc.latitude, loc.longitude))
                     } else {
+                        val cts = CancellationTokenSource()
+                        cont.invokeOnCancellation { cts.cancel() }
                         fusedClient.getCurrentLocation(
                             CurrentLocationRequest.Builder()
                                 .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
                                 .build(),
-                            null
+                            cts.token
                         ).addOnSuccessListener { fresh: Location? ->
                             if (fresh != null) cont.resume(LatLon(fresh.latitude, fresh.longitude))
                             else cont.resumeWithException(Exception("Location unavailable"))
