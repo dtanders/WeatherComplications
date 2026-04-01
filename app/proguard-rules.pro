@@ -1,0 +1,3 @@
+-keep class ac.house.studio.weathercomplications.data.** { *; }
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
