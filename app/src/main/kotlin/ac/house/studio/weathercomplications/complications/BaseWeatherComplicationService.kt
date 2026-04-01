@@ -2,7 +2,7 @@ package ac.house.studio.weathercomplications.complications
 
 import android.content.ComponentName
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
-import androidx.wear.watchface.complications.datasource.ComplicationType
+import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
 import ac.house.studio.weathercomplications.data.WeatherRepository
 
