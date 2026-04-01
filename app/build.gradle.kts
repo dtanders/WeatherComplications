@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "ac.house.studio.weathercomplications"
+    namespace = "app.weathercomplications"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ac.house.studio.weathercomplications"
+        applicationId = "app.weathercomplications"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
