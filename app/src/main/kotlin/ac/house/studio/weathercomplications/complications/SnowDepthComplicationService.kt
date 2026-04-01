@@ -22,6 +22,8 @@ class SnowDepthComplicationService : BaseWeatherComplicationService() {
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+        if (request.complicationType != ComplicationType.SHORT_TEXT &&
+            request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
         val text = WeatherFormatter.formatSnowDepth(data?.current?.snowDepth)
         val description = PlainComplicationText.Builder("Snow Depth $text").build()

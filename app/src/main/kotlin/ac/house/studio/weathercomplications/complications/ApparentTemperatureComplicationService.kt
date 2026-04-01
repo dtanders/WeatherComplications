@@ -22,6 +22,8 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
     }
 
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+        if (request.complicationType != ComplicationType.SHORT_TEXT &&
+            request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
         val text = WeatherFormatter.formatApparentTemperature(data?.current?.apparentTemperature)
         val description = PlainComplicationText.Builder("Apparent Temperature $text").build()
@@ -33,8 +35,8 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
             ).setTitle(PlainComplicationText.Builder("FEELS").build()).build()
 
             ComplicationType.RANGED_VALUE -> {
-                val min = data?.daily?.apparentTemperatureMin?.toFloat() ?: 0f
-                val max = data?.daily?.apparentTemperatureMax?.toFloat() ?: 1f
+                val min = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
+                val max = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
                 val safeMax = if (max > min) max else min + 1f
                 val current = (data?.current?.apparentTemperature?.toFloat() ?: min).coerceIn(min, safeMax)
                 RangedValueComplicationData.Builder(
