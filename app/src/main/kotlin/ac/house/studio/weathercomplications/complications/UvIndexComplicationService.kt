@@ -35,7 +35,7 @@ class UvIndexComplicationService : BaseWeatherComplicationService() {
             ).setTitle(PlainComplicationText.Builder("UV").build()).build()
 
             ComplicationType.RANGED_VALUE -> {
-                val dailyMax = (data?.daily?.uvIndexMax?.toFloat() ?: 11f).coerceAtMost(11f)
+                val dailyMax = (data?.daily?.uvIndexMax?.toFloat() ?: 0f).coerceAtMost(11f)
                 val rangeMax = maxOf(dailyMax, 1f)
                 val current = (data?.current?.uvIndex?.toFloat() ?: 0f).coerceIn(0f, rangeMax)
                 RangedValueComplicationData.Builder(
