@@ -4,7 +4,7 @@ kotlin = "2.0.21"
 wearComplications = "1.2.1"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
-retrofitKotlinxSerializer = "1.0.0"
+retrofitKotlinxSerializer = "2.11.0"
 okhttp = "4.12.0"
 kotlinxSerialization = "1.7.3"
 kotlinxCoroutines = "1.9.0"
@@ -18,7 +18,7 @@ wear-complications-datasource = { group = "androidx.wear.watchface", name = "wat
 wear-complications-datasource-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-datasource-ktx", version.ref = "wearComplications" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializer" }
+retrofit-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofitKotlinxSerializer" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }

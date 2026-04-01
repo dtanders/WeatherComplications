@@ -1,3 +1,6 @@
 -keep class ac.house.studio.weathercomplications.data.** { *; }
+-keep class * extends androidx.wear.watchface.complications.datasource.ComplicationDataSourceService { *; }
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
+-keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
+-keepclasseswithmembers class ** { @kotlinx.serialization.SerialName <fields>; }
