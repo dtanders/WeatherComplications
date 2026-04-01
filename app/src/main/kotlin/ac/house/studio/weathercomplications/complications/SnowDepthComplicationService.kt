@@ -35,11 +35,9 @@ class SnowDepthComplicationService : BaseWeatherComplicationService() {
             ).setTitle(PlainComplicationText.Builder("SNOW").build()).build()
 
             ComplicationType.RANGED_VALUE -> {
-                val maxM = data?.daily?.snowDepthMax?.toFloat() ?: 1f
-                val safeMax = if (maxM > 0.01f) maxM else 1f
-                val current = (data?.current?.snowDepth?.toFloat() ?: 0f).coerceIn(0f, safeMax)
+                val current = (data?.current?.snowDepth?.toFloat() ?: 0f).coerceIn(0f, 2.0f)
                 RangedValueComplicationData.Builder(
-                    value = current, min = 0f, max = safeMax,
+                    value = current, min = 0f, max = 2.0f,
                     contentDescription = description
                 ).setText(PlainComplicationText.Builder(text).build())
                     .setTitle(PlainComplicationText.Builder("SNOW").build()).build()

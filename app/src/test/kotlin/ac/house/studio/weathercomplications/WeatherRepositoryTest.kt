@@ -91,13 +91,13 @@ class WeatherRepositoryTest {
 
     private fun freshWeatherData() = WeatherData(
         current = CurrentWeather(65, 10.0, 15.0, 0.0, 10000.0, 3.0, 42),
-        daily = DailyWeather(18.0, 8.0, 5.0, 0.0, 24140.0, 8000.0),
+        daily = DailyWeather(18.0, 8.0, 5.0, 24140.0, 8000.0),
         fetchedAt = System.currentTimeMillis() - 30 * 60 * 1000L
     )
 
     private fun staleWeatherData() = WeatherData(
         current = CurrentWeather(65, 10.0, 15.0, 0.0, 10000.0, 3.0, 42),
-        daily = DailyWeather(18.0, 8.0, 5.0, 0.0, 24140.0, 8000.0),
+        daily = DailyWeather(18.0, 8.0, 5.0, 24140.0, 8000.0),
         fetchedAt = System.currentTimeMillis() - 2 * 60 * 60 * 1000L
     )
 
@@ -112,7 +112,6 @@ class WeatherRepositoryTest {
             apparentTemperatureMax = listOf(18.0),
             apparentTemperatureMin = listOf(8.0),
             uvIndexMax = listOf(5.0),
-            snowDepthMax = listOf(0.0),
             visibilityMax = listOf(24140.0),
             visibilityMin = listOf(8000.0)
         )

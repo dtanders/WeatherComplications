@@ -25,7 +25,6 @@ data class DailyWeather(
     val apparentTemperatureMax: Double?,
     val apparentTemperatureMin: Double?,
     val uvIndexMax: Double?,
-    val snowDepthMax: Double?,
     val visibilityMax: Double?,
     val visibilityMin: Double?
 )

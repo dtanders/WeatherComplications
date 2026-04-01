@@ -27,7 +27,6 @@ data class DailyWeatherResponse(
     @SerialName("apparent_temperature_max") val apparentTemperatureMax: List<Double?> = emptyList(),
     @SerialName("apparent_temperature_min") val apparentTemperatureMin: List<Double?> = emptyList(),
     @SerialName("uv_index_max") val uvIndexMax: List<Double?> = emptyList(),
-    @SerialName("snow_depth_max") val snowDepthMax: List<Double?> = emptyList(),
     @SerialName("visibility_max") val visibilityMax: List<Double?> = emptyList(),
     @SerialName("visibility_min") val visibilityMin: List<Double?> = emptyList()
 )
