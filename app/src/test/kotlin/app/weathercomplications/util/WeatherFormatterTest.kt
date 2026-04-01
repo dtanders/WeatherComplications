@@ -1,4 +1,4 @@
-package app.weathercomplications
+package app.weathercomplications.util
 
 import app.weathercomplications.util.WeatherFormatter
 import org.junit.Assert.assertEquals

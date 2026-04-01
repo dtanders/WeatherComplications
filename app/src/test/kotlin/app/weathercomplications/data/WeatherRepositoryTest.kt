@@ -1,4 +1,4 @@
-package app.weathercomplications
+package app.weathercomplications.data
 
 import app.weathercomplications.data.*
 import app.weathercomplications.data.remote.*
