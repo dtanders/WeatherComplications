@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Weather Complications</string>
+
+    <!-- Complication labels (full name, shown in picker) -->
     <string name="humidity_complication_label">Relative Humidity</string>
     <string name="dewpoint_complication_label">Dewpoint</string>
     <string name="apparent_temperature_complication_label">Apparent Temperature</string>
@@ -8,4 +10,35 @@
     <string name="visibility_complication_label">Visibility</string>
     <string name="uv_index_complication_label">UV Index</string>
     <string name="aqi_complication_label">Air Quality Index</string>
+
+    <!-- Short titles shown on the watch face -->
+    <string name="humidity_title">HUMID</string>
+    <string name="dewpoint_title">DEW</string>
+    <string name="apparent_temperature_title">FEELS</string>
+    <string name="snow_depth_title">SNOW</string>
+    <string name="visibility_title">VIS</string>
+    <string name="uv_index_title">UV</string>
+    <string name="aqi_title">AQI</string>
+
+    <!-- Content descriptions for accessibility (TalkBack) -->
+    <string name="humidity_description">Relative Humidity %s</string>
+    <string name="dewpoint_description">Dewpoint %s</string>
+    <string name="apparent_temperature_description">Apparent Temperature %s</string>
+    <string name="apparent_temperature_range_description">Apparent Temperature Range</string>
+    <string name="snow_depth_description">Snow Depth %s</string>
+    <string name="snow_depth_range_description">Snow Depth Range</string>
+    <string name="visibility_description">Visibility %s</string>
+    <string name="visibility_range_description">Visibility Range</string>
+    <string name="uv_index_description">UV Index %s</string>
+    <string name="uv_index_range_description">UV Index Range</string>
+    <string name="aqi_description">Air Quality Index %1$s %2$s</string>
+
+    <!-- AQI category labels (short, shown as complication title) -->
+    <string name="aqi_label_good">Good</string>
+    <string name="aqi_label_moderate">Mod</string>
+    <string name="aqi_label_usg">USG</string>
+    <string name="aqi_label_unhealthy">Unhl</string>
+    <string name="aqi_label_very_unhealthy">VUnhl</string>
+    <string name="aqi_label_hazardous">Haz</string>
+    <string name="aqi_label_unknown">AQI</string>
 </resources>
