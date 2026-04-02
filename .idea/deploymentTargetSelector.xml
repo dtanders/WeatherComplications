@@ -2,7 +2,10 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="app.ApparentTemperatureComplicationService">
+      <SelectionState runConfigName="Apparent Temperature Complication">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="app.AqiComplicationService">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
