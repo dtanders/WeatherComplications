@@ -19,7 +19,7 @@ class HumidityComplicationService : BaseWeatherComplicationService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
-        val text = WeatherFormatter().formatHumidity(data?.current?.relativeHumidity)
+        val text = formatter().formatHumidity(data?.current?.relativeHumidity)
         return ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(getString(R.string.humidity_description, text)).build()

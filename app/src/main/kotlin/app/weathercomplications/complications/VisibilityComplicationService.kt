@@ -31,7 +31,7 @@ class VisibilityComplicationService : BaseWeatherComplicationService() {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
             request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
-        val formatter = WeatherFormatter()
+        val formatter = formatter()
         val text = formatter.formatVisibility(data?.current?.visibility)
         val title = getString(R.string.visibility_title)
 

@@ -19,7 +19,7 @@ class DewpointComplicationService : BaseWeatherComplicationService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
-        val text = WeatherFormatter().formatDewpoint(data?.current?.dewpoint)
+        val text = formatter().formatDewpoint(data?.current?.dewpoint)
         return ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(getString(R.string.dewpoint_description, text)).build()

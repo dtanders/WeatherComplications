@@ -30,7 +30,7 @@ class UvIndexComplicationService : BaseWeatherComplicationService() {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
             request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
-        val text = WeatherFormatter().formatUvIndex(data?.current?.uvIndex)
+        val text = formatter().formatUvIndex(data?.current?.uvIndex)
         val title = getString(R.string.uv_index_title)
 
         return when (request.complicationType) {

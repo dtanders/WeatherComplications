@@ -4,12 +4,17 @@ import android.content.ComponentName
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.datasource.SuspendingComplicationDataSourceService
+import app.weathercomplications.data.UserPreferencesStore
 import app.weathercomplications.data.WeatherRepository
+import app.weathercomplications.util.WeatherFormatter
 
 abstract class BaseWeatherComplicationService : SuspendingComplicationDataSourceService() {
 
     protected val repository: WeatherRepository
         get() = WeatherRepository.getInstance(applicationContext)
+
+    protected suspend fun formatter(): WeatherFormatter =
+        WeatherFormatter(UserPreferencesStore(applicationContext).isImperial())
 
     override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
         ComplicationDataSourceUpdateRequester

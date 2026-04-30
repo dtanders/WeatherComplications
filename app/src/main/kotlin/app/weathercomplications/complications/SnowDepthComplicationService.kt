@@ -31,7 +31,7 @@ class SnowDepthComplicationService : BaseWeatherComplicationService() {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
             request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
-        val formatter = WeatherFormatter()
+        val formatter = formatter()
         val text = formatter.formatSnowDepth(data?.current?.snowDepth)
         val title = getString(R.string.snow_depth_title)
 

@@ -41,7 +41,7 @@ class AqiComplicationService : BaseWeatherComplicationService() {
             request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
         val aqi = data?.current?.aqi
-        val text = WeatherFormatter().formatAqi(aqi)
+        val text = formatter().formatAqi(aqi)
         val label = aqiLabel(aqi)
         val description = PlainComplicationText.Builder(getString(R.string.aqi_description, text, label)).build()
 

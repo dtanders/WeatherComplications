@@ -33,6 +33,12 @@
     <string name="uv_index_range_description">UV Index Range</string>
     <string name="aqi_description">Air Quality Index %1$s %2$s</string>
 
+    <!-- Settings screen -->
+    <string name="settings_units_title">Units</string>
+    <string name="settings_units_auto">Auto (device locale)</string>
+    <string name="settings_units_metric">Metric</string>
+    <string name="settings_units_imperial">Imperial</string>
+
     <!-- AQI category labels (short, shown as complication title) -->
     <string name="aqi_label_good">Good</string>
     <string name="aqi_label_moderate">Mod</string>
