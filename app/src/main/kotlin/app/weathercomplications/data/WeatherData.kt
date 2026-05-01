@@ -17,7 +17,8 @@ data class CurrentWeather(
     val snowDepth: Double?,
     val visibility: Double?,
     val uvIndex: Double?,
-    val aqi: Int?
+    val aqi: Int?,
+    val weatherCode: Int? = null
 )
 
 @Serializable

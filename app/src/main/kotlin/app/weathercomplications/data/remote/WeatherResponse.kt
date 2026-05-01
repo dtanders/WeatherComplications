@@ -18,7 +18,8 @@ data class CurrentWeatherResponse(
     @SerialName("apparent_temperature") val apparentTemperature: Double? = null,
     @SerialName("snow_depth") val snowDepth: Double? = null,
     val visibility: Double? = null,
-    @SerialName("uv_index") val uvIndex: Double? = null
+    @SerialName("uv_index") val uvIndex: Double? = null,
+    @SerialName("weather_code") val weatherCode: Int? = null
 )
 
 @Serializable

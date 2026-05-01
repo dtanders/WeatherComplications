@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Small sun: circle center (17,5) radius 2.5 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M19.5,5 A2.5,2.5 0 1,0 14.5,5 A2.5,2.5 0 1,0 19.5,5 Z"/>
+    <!-- 4 sun rays (up, right, upper-left, upper-right) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M17,2.5 L17,1 M19.5,5 L21,5 M19.27,2.73 L20.41,1.59 M14.73,2.73 L13.59,1.59"/>
+    <!-- Cloud shifted to lower portion: scaled Material cloud y=8-20 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17.51,12.53 C16.99,9.94 14.73,8 12,8 C9.83,8 7.95,9.23 7.01,11.03 C4.76,11.27 3,13.18 3,15.5 C3,17.98 5.02,20 7.5,20 L17.25,20 C19.32,20 21,18.32 21,16.25 C21,14.27 19.46,12.67 17.51,12.53 Z"/>
+</vector>

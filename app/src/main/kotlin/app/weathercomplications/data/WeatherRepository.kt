@@ -41,7 +41,7 @@ class WeatherRepository(
                 weatherApi.getForecast(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    current = "relative_humidity_2m,dew_point_2m,apparent_temperature,snow_depth,visibility,uv_index",
+                    current = "relative_humidity_2m,dew_point_2m,apparent_temperature,snow_depth,visibility,uv_index,weather_code",
                     daily = "apparent_temperature_max,apparent_temperature_min,uv_index_max,visibility_max,visibility_min",
                     models = "best_match",
                     forecastDays = 1
@@ -63,7 +63,8 @@ class WeatherRepository(
                     snowDepth = weather.current.snowDepth,
                     visibility = weather.current.visibility,
                     uvIndex = weather.current.uvIndex,
-                    aqi = aqi?.current?.usAqi
+                    aqi = aqi?.current?.usAqi,
+                    weatherCode = weather.current.weatherCode
                 ),
                 daily = DailyWeather(
                     apparentTemperatureMax = weather.daily.apparentTemperatureMax.firstOrNull(),
