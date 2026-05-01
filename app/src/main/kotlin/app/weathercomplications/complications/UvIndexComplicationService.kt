@@ -32,12 +32,14 @@ class UvIndexComplicationService : BaseWeatherComplicationService() {
         val data = runCatching { repository.getWeatherData() }.getOrNull()
         val text = formatter().formatUvIndex(data?.current?.uvIndex)
         val title = getString(R.string.uv_index_title)
+        val tapAction = weatherAppTapAction()
 
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text).build(),
                 contentDescription = PlainComplicationText.Builder(getString(R.string.uv_index_description, text)).build()
-            ).setTitle(PlainComplicationText.Builder(title).build()).build()
+            ).setTitle(PlainComplicationText.Builder(title).build())
+                .setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
                 val dailyMax = (data?.daily?.uvIndexMax?.toFloat() ?: 0f).coerceAtMost(11f)
@@ -47,7 +49,8 @@ class UvIndexComplicationService : BaseWeatherComplicationService() {
                     value = current, min = 0f, max = rangeMax,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.uv_index_range_description)).build()
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build()).build()
+                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .setTapAction(tapAction).build()
             }
 
             else -> null

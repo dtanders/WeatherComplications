@@ -23,6 +23,7 @@ class HumidityComplicationService : BaseWeatherComplicationService() {
         return ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(getString(R.string.humidity_description, text)).build()
-        ).setTitle(PlainComplicationText.Builder(getString(R.string.humidity_title)).build()).build()
+        ).setTitle(PlainComplicationText.Builder(getString(R.string.humidity_title)).build())
+            .setTapAction(weatherAppTapAction()).build()
     }
 }

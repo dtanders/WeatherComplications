@@ -34,12 +34,14 @@ class SnowDepthComplicationService : BaseWeatherComplicationService() {
         val formatter = formatter()
         val text = formatter.formatSnowDepth(data?.current?.snowDepth)
         val title = getString(R.string.snow_depth_title)
+        val tapAction = weatherAppTapAction()
 
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text).build(),
                 contentDescription = PlainComplicationText.Builder(getString(R.string.snow_depth_description, text)).build()
-            ).setTitle(PlainComplicationText.Builder(title).build()).build()
+            ).setTitle(PlainComplicationText.Builder(title).build())
+                .setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
                 val current = (data?.current?.snowDepth?.toFloat() ?: 0f).coerceIn(0f, 2.0f)
@@ -47,7 +49,8 @@ class SnowDepthComplicationService : BaseWeatherComplicationService() {
                     value = current, min = 0f, max = 2.0f,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.snow_depth_range_description)).build()
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build()).build()
+                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .setTapAction(tapAction).build()
             }
 
             else -> null

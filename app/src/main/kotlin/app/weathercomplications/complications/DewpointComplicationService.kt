@@ -23,6 +23,7 @@ class DewpointComplicationService : BaseWeatherComplicationService() {
         return ShortTextComplicationData.Builder(
             text = PlainComplicationText.Builder(text).build(),
             contentDescription = PlainComplicationText.Builder(getString(R.string.dewpoint_description, text)).build()
-        ).setTitle(PlainComplicationText.Builder(getString(R.string.dewpoint_title)).build()).build()
+        ).setTitle(PlainComplicationText.Builder(getString(R.string.dewpoint_title)).build())
+            .setTapAction(weatherAppTapAction()).build()
     }
 }

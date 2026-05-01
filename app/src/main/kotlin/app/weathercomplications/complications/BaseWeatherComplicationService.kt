@@ -1,5 +1,6 @@
 package app.weathercomplications.complications
 
+import android.app.PendingIntent
 import android.content.ComponentName
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -15,6 +16,12 @@ abstract class BaseWeatherComplicationService : SuspendingComplicationDataSource
 
     protected suspend fun formatter(): WeatherFormatter =
         WeatherFormatter(UserPreferencesStore(applicationContext).isImperial())
+
+    protected fun weatherAppTapAction(): PendingIntent? {
+        val intent = packageManager.getLaunchIntentForPackage("com.google.android.wearable.app")
+            ?: return null
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    }
 
     override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
         ComplicationDataSourceUpdateRequester

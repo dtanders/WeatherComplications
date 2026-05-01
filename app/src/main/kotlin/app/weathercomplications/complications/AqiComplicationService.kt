@@ -44,12 +44,14 @@ class AqiComplicationService : BaseWeatherComplicationService() {
         val text = formatter().formatAqi(aqi)
         val label = aqiLabel(aqi)
         val description = PlainComplicationText.Builder(getString(R.string.aqi_description, text, label)).build()
+        val tapAction = weatherAppTapAction()
 
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text).build(),
                 contentDescription = description
-            ).setTitle(PlainComplicationText.Builder(label).build()).build()
+            ).setTitle(PlainComplicationText.Builder(label).build())
+                .setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
                 val value = (aqi ?: 0).toFloat().coerceIn(0f, 300f)
@@ -57,7 +59,8 @@ class AqiComplicationService : BaseWeatherComplicationService() {
                     value = value, min = 0f, max = 300f,
                     contentDescription = description
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(label).build()).build()
+                    .setTitle(PlainComplicationText.Builder(label).build())
+                    .setTapAction(tapAction).build()
             }
 
             else -> null

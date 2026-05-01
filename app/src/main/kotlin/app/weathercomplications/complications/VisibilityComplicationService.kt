@@ -34,12 +34,14 @@ class VisibilityComplicationService : BaseWeatherComplicationService() {
         val formatter = formatter()
         val text = formatter.formatVisibility(data?.current?.visibility)
         val title = getString(R.string.visibility_title)
+        val tapAction = weatherAppTapAction()
 
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text).build(),
                 contentDescription = PlainComplicationText.Builder(getString(R.string.visibility_description, text)).build()
-            ).setTitle(PlainComplicationText.Builder(title).build()).build()
+            ).setTitle(PlainComplicationText.Builder(title).build())
+                .setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
                 val min = data?.daily?.visibilityMin?.toFloat() ?: return null
@@ -50,7 +52,8 @@ class VisibilityComplicationService : BaseWeatherComplicationService() {
                     value = current, min = min, max = safeMax,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.visibility_range_description)).build()
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build()).build()
+                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .setTapAction(tapAction).build()
             }
 
             else -> null

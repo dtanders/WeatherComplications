@@ -40,13 +40,14 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
         val text = formatter.formatApparentTemperature(data?.current?.apparentTemperature)
         val title = getString(R.string.apparent_temperature_title)
         val image = monoImage(WeatherConditionIcon.forWmoCode(data?.current?.weatherCode))
+        val tapAction = weatherAppTapAction()
 
         return when (request.complicationType) {
             ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
                 text = PlainComplicationText.Builder(text).build(),
                 contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_description, text)).build()
             ).setTitle(PlainComplicationText.Builder(title).build())
-                .setMonochromaticImage(image).build()
+                .setMonochromaticImage(image).setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
                 val min = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
@@ -58,7 +59,7 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                     contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_range_description)).build()
                 ).setText(PlainComplicationText.Builder(text).build())
                     .setTitle(PlainComplicationText.Builder(title).build())
-                    .setMonochromaticImage(image).build()
+                    .setMonochromaticImage(image).setTapAction(tapAction).build()
             }
 
             else -> null
