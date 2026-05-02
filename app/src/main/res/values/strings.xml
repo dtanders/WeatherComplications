@@ -38,6 +38,9 @@
     <string name="settings_units_auto">Auto (device locale)</string>
     <string name="settings_units_metric">Metric</string>
     <string name="settings_units_imperial">Imperial</string>
+    <string name="settings_tap_target_title">Open on tap</string>
+    <string name="settings_tap_auto">Auto (Wear OS weather)</string>
+    <string name="settings_tap_none">None</string>
 
     <!-- AQI category labels (short, shown as complication title) -->
     <string name="aqi_label_good">Good</string>
