@@ -1,8 +1,10 @@
 package app.weathercomplications.ui
 
+import android.Manifest
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.RadioButton
@@ -38,6 +40,10 @@ class SettingsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         preferences = UserPreferencesStore(this)
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), 0)
+        }
 
         val unitGroup = findViewById<RadioGroup>(R.id.unit_system_group)
         val tapGroup = findViewById<RadioGroup>(R.id.tap_target_group)
