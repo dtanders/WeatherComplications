@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.wear.complications.data)
     implementation(libs.wear.complications.datasource)
     implementation(libs.wear.complications.datasource.ktx)
+    implementation(libs.wear.remote.interactions)
     implementation(libs.play.services.location)
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)

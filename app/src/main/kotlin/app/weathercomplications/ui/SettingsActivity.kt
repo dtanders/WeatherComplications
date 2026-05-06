@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.wear.remote.interactions.RemoteActivityHelper
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
 import app.weathercomplications.R
 import app.weathercomplications.complications.AqiComplicationService
@@ -50,8 +51,11 @@ class SettingsActivity : Activity() {
         val unitGroup = findViewById<RadioGroup>(R.id.unit_system_group)
         val tapGroup = findViewById<RadioGroup>(R.id.tap_target_group)
 
+        val remoteActivityHelper = RemoteActivityHelper(this)
         findViewById<TextView>(R.id.attribution_open_meteo).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.attribution_open_meteo_url))))
+            remoteActivityHelper.startRemoteActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.attribution_open_meteo_url)))
+            ).addListener({}, mainExecutor)
         }
 
         populateTapTargets(tapGroup)

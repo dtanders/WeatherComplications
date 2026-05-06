@@ -2,6 +2,7 @@
 agp = "9.2.1"
 kotlin = "2.2.10"
 wearComplications = "1.2.1"
+wearRemoteInteractions = "1.0.0"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 retrofitKotlinxSerializer = "2.11.0"
@@ -16,6 +17,7 @@ mockk = "1.13.13"
 wear-complications-data = { group = "androidx.wear.watchface", name = "watchface-complications-data", version.ref = "wearComplications" }
 wear-complications-datasource = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "wearComplications" }
 wear-complications-datasource-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "wearComplications" }
+wear-remote-interactions = { group = "androidx.wear", name = "wear-remote-interactions", version.ref = "wearRemoteInteractions" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofitKotlinxSerializer" }
