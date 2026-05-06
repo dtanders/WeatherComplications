@@ -42,6 +42,10 @@
     <string name="settings_tap_auto">Auto (Wear OS weather)</string>
     <string name="settings_tap_none">None</string>
 
+    <!-- Attribution -->
+    <string name="attribution_open_meteo">Weather data by Open-Meteo.com</string>
+    <string name="attribution_open_meteo_url">https://open-meteo.com/</string>
+
     <!-- AQI category labels (short, shown as complication title) -->
     <string name="aqi_label_good">Good</string>
     <string name="aqi_label_moderate">Mod</string>

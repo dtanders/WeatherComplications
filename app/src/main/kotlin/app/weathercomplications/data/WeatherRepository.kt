@@ -20,8 +20,13 @@ class WeatherRepository(
         private const val CACHE_DURATION_MS = 60 * 60 * 1000L
         private const val LOCATION_INVALIDATION_METERS = 20_000f
 
+        private const val LOCATION_CHECK_CACHE_MS = 5 * 60 * 1000L
+
         @Volatile private var instance: WeatherRepository? = null
         private val fetchMutex = Mutex()
+
+        @Volatile private var lastKnownLocation: LatLon? = null
+        @Volatile private var lastLocationCheckAt: Long = 0
 
         fun getInstance(context: Context): WeatherRepository = instance ?: synchronized(this) {
             instance ?: WeatherRepository(
@@ -56,12 +61,21 @@ class WeatherRepository(
     private suspend fun locationChangedSignificantly(cached: WeatherData): Boolean {
         val cachedLat = cached.latitude ?: return false
         val cachedLon = cached.longitude ?: return false
-        val current = runCatching { locationRepository.getLastKnownLocation() }.getOrNull() ?: return false
+        val current = currentLocationCached() ?: return false
         val results = FloatArray(1)
         Location.distanceBetween(cachedLat, cachedLon, current.latitude, current.longitude, results)
         val changed = results[0] > LOCATION_INVALIDATION_METERS
         if (changed) Log.d(LOG_TAG, "location changed ${results[0].toInt()}m, invalidating cache")
         return changed
+    }
+
+    private suspend fun currentLocationCached(): LatLon? {
+        val now = System.currentTimeMillis()
+        if (now - lastLocationCheckAt < LOCATION_CHECK_CACHE_MS) return lastKnownLocation
+        val loc = runCatching { locationRepository.getLastKnownLocation() }.getOrNull()
+        lastKnownLocation = loc
+        lastLocationCheckAt = now
+        return loc
     }
 
     private suspend fun fetchAndCache(): WeatherData {

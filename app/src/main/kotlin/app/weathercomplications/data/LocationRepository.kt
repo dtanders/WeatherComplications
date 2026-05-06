@@ -32,7 +32,7 @@ class LocationRepository(private val context: Context) {
                         cont.invokeOnCancellation { cts.cancel() }
                         fusedClient.getCurrentLocation(
                             CurrentLocationRequest.Builder()
-                                .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
+                                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
                                 .build(),
                             cts.token
                         ).addOnSuccessListener { fresh: Location? ->
