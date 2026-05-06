@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 data class WeatherData(
     val current: CurrentWeather,
     val daily: DailyWeather,
-    val fetchedAt: Long
+    val fetchedAt: Long,
+    val latitude: Double? = null,
+    val longitude: Double? = null
 )
 
 @Serializable

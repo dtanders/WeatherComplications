@@ -32,7 +32,7 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
         }
     }
 
-    override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
+    override suspend fun buildComplicationData(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
             request.complicationType != ComplicationType.RANGED_VALUE) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()

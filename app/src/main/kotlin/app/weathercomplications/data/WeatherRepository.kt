@@ -1,9 +1,14 @@
 package app.weathercomplications.data
 
+import app.weathercomplications.util.LOG_TAG
 import android.content.Context
+import android.location.Location
+import android.util.Log
 import app.weathercomplications.data.remote.ApiServiceFactory
 import app.weathercomplications.data.remote.OpenMeteoAqiApi
 import app.weathercomplications.data.remote.OpenMeteoWeatherApi
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class WeatherRepository(
     private val weatherApi: OpenMeteoWeatherApi,
@@ -13,8 +18,10 @@ class WeatherRepository(
 ) {
     companion object {
         private const val CACHE_DURATION_MS = 60 * 60 * 1000L
+        private const val LOCATION_INVALIDATION_METERS = 20_000f
 
         @Volatile private var instance: WeatherRepository? = null
+        private val fetchMutex = Mutex()
 
         fun getInstance(context: Context): WeatherRepository = instance ?: synchronized(this) {
             instance ?: WeatherRepository(
@@ -27,16 +34,41 @@ class WeatherRepository(
     }
 
     suspend fun getWeatherData(): WeatherData {
-        val cached = cache.getCachedData()
-        if (cached != null && System.currentTimeMillis() - cached.fetchedAt < CACHE_DURATION_MS) {
-            return cached
+        Log.d(LOG_TAG, "getWeatherData called")
+        cache.getCachedData()?.let {
+            if (System.currentTimeMillis() - it.fetchedAt < CACHE_DURATION_MS && !locationChangedSignificantly(it)) {
+                Log.d(LOG_TAG, "returning cached data age=${(System.currentTimeMillis() - it.fetchedAt) / 1000}s")
+                return it
+            }
         }
-        return fetchAndCache()
+        return fetchMutex.withLock {
+            cache.getCachedData()?.let {
+                if (System.currentTimeMillis() - it.fetchedAt < CACHE_DURATION_MS && !locationChangedSignificantly(it)) {
+                    Log.d(LOG_TAG, "cache hit after lock (another coroutine fetched)")
+                    return@withLock it
+                }
+            }
+            Log.d(LOG_TAG, "cache miss, fetching")
+            fetchAndCache()
+        }
+    }
+
+    private suspend fun locationChangedSignificantly(cached: WeatherData): Boolean {
+        val cachedLat = cached.latitude ?: return false
+        val cachedLon = cached.longitude ?: return false
+        val current = runCatching { locationRepository.getLastKnownLocation() }.getOrNull() ?: return false
+        val results = FloatArray(1)
+        Location.distanceBetween(cachedLat, cachedLon, current.latitude, current.longitude, results)
+        val changed = results[0] > LOCATION_INVALIDATION_METERS
+        if (changed) Log.d(LOG_TAG, "location changed ${results[0].toInt()}m, invalidating cache")
+        return changed
     }
 
     private suspend fun fetchAndCache(): WeatherData {
         return try {
+            Log.d(LOG_TAG, "fetchAndCache: getting location")
             val location = locationRepository.getLocation()
+            Log.d(LOG_TAG, "fetchAndCache: location=${location.latitude},${location.longitude}")
             val weather = runCatching {
                 weatherApi.getForecast(
                     latitude = location.latitude,
@@ -73,12 +105,17 @@ class WeatherRepository(
                     visibilityMax = weather.daily.visibilityMax.firstOrNull(),
                     visibilityMin = weather.daily.visibilityMin.firstOrNull()
                 ),
-                fetchedAt = System.currentTimeMillis()
+                fetchedAt = System.currentTimeMillis(),
+                latitude = location.latitude,
+                longitude = location.longitude
             )
             cache.saveData(data)
+            Log.d(LOG_TAG, "fetchAndCache: saved uv=${data.current.uvIndex} humidity=${data.current.relativeHumidity}")
             data
         } catch (e: Exception) {
+            Log.e(LOG_TAG, "fetchAndCache failed", e)
             cache.getCachedData() ?: throw e
         }
     }
 }
+
