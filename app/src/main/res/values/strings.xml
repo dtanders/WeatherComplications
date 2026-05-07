@@ -41,12 +41,16 @@
     <string name="settings_tap_target_title">Open on tap</string>
     <string name="settings_tap_auto">Auto (Wear OS weather)</string>
     <string name="settings_tap_none">None</string>
+    <string name="settings_aqi_type_title">AQI Standard</string>
+    <string name="settings_aqi_us">US (AQI)</string>
+    <string name="settings_aqi_eu">European (EAQI)</string>
 
     <!-- Attribution -->
     <string name="attribution_open_meteo">Weather data by Open-Meteo.com</string>
     <string name="attribution_open_meteo_url">https://open-meteo.com/</string>
 
     <!-- AQI category labels (short, shown as complication title) -->
+    <!-- US AQI -->
     <string name="aqi_label_good">Good</string>
     <string name="aqi_label_moderate">Mod</string>
     <string name="aqi_label_usg">USG</string>
@@ -54,4 +58,9 @@
     <string name="aqi_label_very_unhealthy">VUnhl</string>
     <string name="aqi_label_hazardous">Haz</string>
     <string name="aqi_label_unknown">AQI</string>
+    <!-- European AQI (EAQI) -->
+    <string name="aqi_label_fair">Fair</string>
+    <string name="aqi_label_poor">Poor</string>
+    <string name="aqi_label_very_poor">VPoor</string>
+    <string name="aqi_label_extremely_poor">ExtPr</string>
 </resources>

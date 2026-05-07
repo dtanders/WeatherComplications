@@ -20,6 +20,7 @@ data class CurrentWeather(
     val visibility: Double?,
     val uvIndex: Double?,
     val aqi: Int?,
+    val europeanAqi: Int? = null,
     val weatherCode: Int? = null
 )
 

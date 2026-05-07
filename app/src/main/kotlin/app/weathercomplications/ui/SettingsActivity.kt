@@ -22,6 +22,8 @@ import app.weathercomplications.complications.SnowDepthComplicationService
 import app.weathercomplications.complications.UvIndexComplicationService
 import app.weathercomplications.complications.VisibilityComplicationService
 import app.weathercomplications.data.UserPreferencesStore
+import app.weathercomplications.data.UserPreferencesStore.Companion.AQI_EU
+import app.weathercomplications.data.UserPreferencesStore.Companion.AQI_US
 import app.weathercomplications.data.UserPreferencesStore.Companion.TAP_AUTO
 import app.weathercomplications.data.UserPreferencesStore.Companion.TAP_NONE
 import app.weathercomplications.data.UserPreferencesStore.Companion.UNIT_AUTO
@@ -50,6 +52,7 @@ class SettingsActivity : Activity() {
 
         val unitGroup = findViewById<RadioGroup>(R.id.unit_system_group)
         val tapGroup = findViewById<RadioGroup>(R.id.tap_target_group)
+        val aqiTypeGroup = findViewById<RadioGroup>(R.id.aqi_type_group)
 
         val remoteActivityHelper = RemoteActivityHelper(this)
         findViewById<TextView>(R.id.attribution_open_meteo).setOnClickListener {
@@ -63,6 +66,7 @@ class SettingsActivity : Activity() {
         scope.launch {
             val savedUnit = preferences.unitSystem.first()
             val savedTap = preferences.tapTarget.first()
+            val savedAqiType = preferences.aqiType.first()
 
             unitGroup.check(when (savedUnit) {
                 UNIT_IMPERIAL -> R.id.radio_imperial
@@ -70,6 +74,7 @@ class SettingsActivity : Activity() {
                 else -> R.id.radio_auto
             })
             checkByTag(tapGroup, savedTap)
+            aqiTypeGroup.check(if (savedAqiType == AQI_EU) R.id.radio_aqi_eu else R.id.radio_aqi_us)
 
             unitGroup.setOnCheckedChangeListener { _, checkedId ->
                 val system = when (checkedId) {
@@ -87,6 +92,14 @@ class SettingsActivity : Activity() {
                 val pkg = tapGroup.findViewById<RadioButton>(checkedId)?.tag as? String ?: TAP_AUTO
                 scope.launch {
                     preferences.setTapTarget(pkg)
+                    requestComplicationUpdates()
+                }
+            }
+
+            aqiTypeGroup.setOnCheckedChangeListener { _, checkedId ->
+                val type = if (checkedId == R.id.radio_aqi_eu) AQI_EU else AQI_US
+                scope.launch {
+                    preferences.setAqiType(type)
                     requestComplicationUpdates()
                 }
             }

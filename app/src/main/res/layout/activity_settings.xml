@@ -63,6 +63,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_aqi_type_title"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingBottom="12dp"/>
+
+        <RadioGroup
+            android:id="@+id/aqi_type_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radio_aqi_us"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_aqi_us"/>
+
+            <RadioButton
+                android:id="@+id/radio_aqi_eu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_aqi_eu"/>
+
+        </RadioGroup>
+
         <TextView
             android:id="@+id/attribution_open_meteo"
             android:layout_width="match_parent"

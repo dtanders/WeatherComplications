@@ -110,6 +110,7 @@ class WeatherRepository(
                     visibility = weather.current.visibility,
                     uvIndex = weather.current.uvIndex,
                     aqi = aqi?.current?.usAqi,
+                    europeanAqi = aqi?.current?.europeanAqi,
                     weatherCode = weather.current.weatherCode
                 ),
                 daily = DailyWeather(

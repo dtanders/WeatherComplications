@@ -16,9 +16,11 @@ class UserPreferencesStore(context: Context) {
     private val dataStore = context.applicationContext.userPreferencesDataStore
     private val unitSystemKey = stringPreferencesKey("unit_system")
     private val tapTargetKey = stringPreferencesKey("tap_target")
+    private val aqiTypeKey = stringPreferencesKey("aqi_type")
 
     val unitSystem: Flow<String> = dataStore.data.map { it[unitSystemKey] ?: UNIT_AUTO }
     val tapTarget: Flow<String> = dataStore.data.map { it[tapTargetKey] ?: TAP_AUTO }
+    val aqiType: Flow<String> = dataStore.data.map { it[aqiTypeKey] ?: AQI_US }
 
     suspend fun setUnitSystem(system: String) {
         dataStore.edit { it[unitSystemKey] = system }
@@ -27,6 +29,12 @@ class UserPreferencesStore(context: Context) {
     suspend fun setTapTarget(packageName: String) {
         dataStore.edit { it[tapTargetKey] = packageName }
     }
+
+    suspend fun setAqiType(type: String) {
+        dataStore.edit { it[aqiTypeKey] = type }
+    }
+
+    suspend fun getAqiType(): String = dataStore.data.first()[aqiTypeKey] ?: AQI_US
 
     suspend fun isImperial(): Boolean = when (dataStore.data.first()[unitSystemKey] ?: UNIT_AUTO) {
         UNIT_IMPERIAL -> true
@@ -43,5 +51,8 @@ class UserPreferencesStore(context: Context) {
 
         const val TAP_AUTO = "auto"
         const val TAP_NONE = "none"
+
+        const val AQI_US = "us"
+        const val AQI_EU = "eu"
     }
 }
