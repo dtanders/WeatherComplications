@@ -1,14 +1,17 @@
 package app.weathercomplications.complications
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Icon
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
+import app.weathercomplications.util.temperatureWeightedElements
 
 class ApparentTemperatureComplicationService : BaseWeatherComplicationService() {
 
+    @SuppressLint("NewApi")
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         val formatter = WeatherFormatter()
         val text = formatter.formatApparentTemperature(12.3)
@@ -28,13 +31,29 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 .setTitle(PlainComplicationText.Builder(title).build())
                 .setMonochromaticImage(image).build()
 
+            ComplicationType.WEIGHTED_ELEMENTS -> {
+                val elements = temperatureWeightedElements(
+                    apparentMin = -3f, airMin = 2f, airMax = 15f, apparentMax = 18f
+                )
+                WeightedElementsComplicationData.Builder(
+                    elements = elements,
+                    contentDescription = PlainComplicationText.Builder(
+                        getString(R.string.apparent_temperature_weighted_description)
+                    ).build()
+                ).setText(PlainComplicationText.Builder(text).build())
+                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .build()
+            }
+
             else -> null
         }
     }
 
+    @SuppressLint("NewApi")
     override suspend fun buildComplicationData(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
-            request.complicationType != ComplicationType.RANGED_VALUE) return null
+            request.complicationType != ComplicationType.RANGED_VALUE &&
+            request.complicationType != ComplicationType.WEIGHTED_ELEMENTS) return null
         val data = runCatching { repository.getWeatherData() }.getOrNull()
         val formatter = formatter()
         val text = formatter.formatApparentTemperature(data?.current?.apparentTemperature)
@@ -60,6 +79,23 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 ).setText(PlainComplicationText.Builder(text).build())
                     .setTitle(PlainComplicationText.Builder(title).build())
                     .setMonochromaticImage(image).setTapAction(tapAction).build()
+            }
+
+            ComplicationType.WEIGHTED_ELEMENTS -> {
+                val apparentMin = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
+                val apparentMax = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
+                val airMin = data?.daily?.temperatureMin?.toFloat() ?: return null
+                val airMax = data?.daily?.temperatureMax?.toFloat() ?: return null
+                val elements = temperatureWeightedElements(apparentMin, airMin, airMax, apparentMax)
+                WeightedElementsComplicationData.Builder(
+                    elements = elements,
+                    contentDescription = PlainComplicationText.Builder(
+                        getString(R.string.apparent_temperature_weighted_description)
+                    ).build()
+                ).setText(PlainComplicationText.Builder(text).build())
+                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .setTapAction(tapAction)
+                    .build()
             }
 
             else -> null
