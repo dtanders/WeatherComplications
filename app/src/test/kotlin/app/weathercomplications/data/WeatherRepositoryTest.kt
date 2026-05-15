@@ -87,6 +87,8 @@ class WeatherRepositoryTest {
         assertEquals(8.0, result.daily.apparentTemperatureMin)
         assertEquals(5.0, result.daily.uvIndexMax)
         assertEquals(24140.0, result.daily.visibilityMax)
+        assertEquals(16.0, result.daily.temperatureMax)
+        assertEquals(5.0, result.daily.temperatureMin)
     }
 
     private fun freshWeatherData() = WeatherData(
@@ -113,7 +115,9 @@ class WeatherRepositoryTest {
             apparentTemperatureMin = listOf(8.0),
             uvIndexMax = listOf(5.0),
             visibilityMax = listOf(24140.0),
-            visibilityMin = listOf(8000.0)
+            visibilityMin = listOf(8000.0),
+            temperature2mMax = listOf(16.0),
+            temperature2mMin = listOf(5.0)
         )
     )
 

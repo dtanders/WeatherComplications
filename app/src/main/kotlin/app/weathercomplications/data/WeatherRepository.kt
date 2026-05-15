@@ -88,7 +88,7 @@ class WeatherRepository(
                     latitude = location.latitude,
                     longitude = location.longitude,
                     current = "relative_humidity_2m,dew_point_2m,apparent_temperature,snow_depth,visibility,uv_index,weather_code",
-                    daily = "apparent_temperature_max,apparent_temperature_min,uv_index_max,visibility_max,visibility_min",
+                    daily = "apparent_temperature_max,apparent_temperature_min,uv_index_max,visibility_max,visibility_min,temperature_2m_max,temperature_2m_min",
                     models = "best_match",
                     forecastDays = 1
                 )
@@ -118,7 +118,9 @@ class WeatherRepository(
                     apparentTemperatureMin = weather.daily.apparentTemperatureMin.firstOrNull(),
                     uvIndexMax = weather.daily.uvIndexMax.firstOrNull(),
                     visibilityMax = weather.daily.visibilityMax.firstOrNull(),
-                    visibilityMin = weather.daily.visibilityMin.firstOrNull()
+                    visibilityMin = weather.daily.visibilityMin.firstOrNull(),
+                    temperatureMax = weather.daily.temperature2mMax.firstOrNull(),
+                    temperatureMin = weather.daily.temperature2mMin.firstOrNull()
                 ),
                 fetchedAt = System.currentTimeMillis(),
                 latitude = location.latitude,
