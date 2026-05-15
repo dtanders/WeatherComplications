@@ -86,7 +86,9 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 val apparentMax = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
                 val airMin = data?.daily?.temperatureMin?.toFloat() ?: return null
                 val airMax = data?.daily?.temperatureMax?.toFloat() ?: return null
-                val elements = temperatureWeightedElements(apparentMin, airMin, airMax, apparentMax)
+                val elements = temperatureWeightedElements(
+                    apparentMin = apparentMin, airMin = airMin, airMax = airMax, apparentMax = apparentMax
+                )
                 WeightedElementsComplicationData.Builder(
                     elements = elements,
                     contentDescription = PlainComplicationText.Builder(
