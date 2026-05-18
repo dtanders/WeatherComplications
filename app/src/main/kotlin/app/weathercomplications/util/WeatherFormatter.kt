@@ -8,10 +8,10 @@ class WeatherFormatter(private val isImperial: Boolean = Locale.getDefault().cou
         value?.let { "$it%" } ?: "--"
 
     fun formatDewpoint(valueC: Double?): String =
-        valueC?.let { "%.1f°".format(if (isImperial) it * 9.0 / 5.0 + 32.0 else it) } ?: "--"
+        valueC?.let { "%.0f°".format(if (isImperial) it * 9.0 / 5.0 + 32.0 else it) } ?: "--"
 
     fun formatApparentTemperature(valueC: Double?): String =
-        valueC?.let { "%.1f°".format(if (isImperial) it * 9.0 / 5.0 + 32.0 else it) } ?: "--"
+        valueC?.let { "%.0f°".format(if (isImperial) it * 9.0 / 5.0 + 32.0 else it) } ?: "--"
 
     fun formatSnowDepth(valueM: Double?): String = valueM?.let {
         if (isImperial) {

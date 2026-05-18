@@ -17,28 +17,28 @@ class WeatherFormatterTest {
 
     // Dewpoint — metric
     @Test fun `formatDewpoint metric returns celsius`() =
-        assertEquals("10.5°", metric.formatDewpoint(10.5))
+        assertEquals("11°", metric.formatDewpoint(10.5))
 
     @Test fun `formatDewpoint metric returns dash for null`() =
         assertEquals("--", metric.formatDewpoint(null))
 
     // Dewpoint — imperial
     @Test fun `formatDewpoint imperial converts to fahrenheit`() =
-        assertEquals("50.9°", imperial.formatDewpoint(10.5))
+        assertEquals("51°", imperial.formatDewpoint(10.5))
 
     @Test fun `formatDewpoint imperial freezing point`() =
-        assertEquals("32.0°", imperial.formatDewpoint(0.0))
+        assertEquals("32°", imperial.formatDewpoint(0.0))
 
     // Apparent temperature — metric
     @Test fun `formatApparentTemperature metric returns celsius`() =
-        assertEquals("15.3°", metric.formatApparentTemperature(15.3))
+        assertEquals("15°", metric.formatApparentTemperature(15.3))
 
     @Test fun `formatApparentTemperature metric returns dash for null`() =
         assertEquals("--", metric.formatApparentTemperature(null))
 
     // Apparent temperature — imperial
     @Test fun `formatApparentTemperature imperial converts to fahrenheit`() =
-        assertEquals("59.5°", imperial.formatApparentTemperature(15.3))
+        assertEquals("60°", imperial.formatApparentTemperature(15.3))
 
     // Snow depth — metric
     @Test fun `formatSnowDepth metric converts meters to centimeters`() =
