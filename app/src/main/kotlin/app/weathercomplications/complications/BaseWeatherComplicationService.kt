@@ -1,11 +1,10 @@
 package app.weathercomplications.complications
 
-import app.weathercomplications.util.LOG_TAG
 import android.app.PendingIntent
-import app.weathercomplications.util.LOG_TAG
 import android.content.ComponentName
-import app.weathercomplications.util.LOG_TAG
 import android.util.Log
+import kotlinx.coroutines.CancellationException
+import app.weathercomplications.util.LOG_TAG
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUpdateRequester
@@ -40,7 +39,10 @@ abstract class BaseWeatherComplicationService : SuspendingComplicationDataSource
     final override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         Log.d(LOG_TAG, "${javaClass.simpleName} onComplicationRequest type=${request.complicationType}")
         return runCatching { buildComplicationData(request) }
-            .onFailure { Log.e(LOG_TAG, "${javaClass.simpleName} buildComplicationData failed", it) }
+            .onFailure {
+                if (it is CancellationException) throw it
+                Log.e(LOG_TAG, "${javaClass.simpleName} buildComplicationData failed", it)
+            }
             .getOrNull()
     }
 
