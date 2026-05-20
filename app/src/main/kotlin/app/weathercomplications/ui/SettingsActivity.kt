@@ -135,7 +135,11 @@ class SettingsActivity : Activity() {
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         packageManager.queryIntentActivities(launcherIntent, 0)
             .sortedWith(compareBy(
-                { !it.loadLabel(packageManager).toString().contains("weather", ignoreCase = true) },
+                {
+                    val label = it.loadLabel(packageManager).toString()
+                    val pkg = it.activityInfo.packageName
+                    !label.contains("weather", ignoreCase = true) && !pkg.contains("weather", ignoreCase = true)
+                },
                 { it.loadLabel(packageManager).toString().lowercase() }
             ))
             .forEach { info ->
