@@ -40,6 +40,13 @@ class WeatherFormatterTest {
     @Test fun `formatApparentTemperature imperial converts to fahrenheit`() =
         assertEquals("60°", imperial.formatApparentTemperature(15.3))
 
+    // Temperature range
+    @Test fun `formatTemperatureRange metric shows max slash min`() =
+        assertEquals("18°/-3°", metric.formatTemperatureRange(-3.0, 18.0))
+
+    @Test fun `formatTemperatureRange imperial converts both values`() =
+        assertEquals("64°/27°", imperial.formatTemperatureRange(-3.0, 18.0))
+
     // Snow depth — metric
     @Test fun `formatSnowDepth metric converts meters to centimeters`() =
         assertEquals("30cm", metric.formatSnowDepth(0.30))
