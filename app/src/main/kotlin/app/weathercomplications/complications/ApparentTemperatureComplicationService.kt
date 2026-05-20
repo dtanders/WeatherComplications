@@ -32,26 +32,12 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
             ).setText(PlainComplicationText.Builder(text).build())
                 .setTitle(PlainComplicationText.Builder(title).build())
                 .setMonochromaticImage(image)
-                .apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        setColorRamp(temperatureColorRamp(-3f, 2f, 15f, 18f))
-                    }
-                }
+//                .apply {
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                        setColorRamp(temperatureColorRamp(-3f, 2f, 15f, 18f))
+//                    }
+//                }
                 .build()
-
-            ComplicationType.WEIGHTED_ELEMENTS -> {
-                val elements = temperatureWeightedElements(
-                    apparentMin = -3f, airMin = 2f, airMax = 15f, apparentMax = 18f
-                )
-                WeightedElementsComplicationData.Builder(
-                    elements = elements,
-                    contentDescription = PlainComplicationText.Builder(
-                        getString(R.string.apparent_temperature_weighted_description)
-                    ).build()
-                ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build())
-                    .build()
-            }
 
             else -> null
         }
@@ -84,8 +70,8 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 val tempTitle = formatter.formatApparentTemperature(max.toDouble()) +
                         "/" +
                         formatter.formatApparentTemperature(min.toDouble())
-                val airMin = data.daily.temperatureMin?.toFloat()
-                val airMax = data.daily.temperatureMax?.toFloat()
+//                val airMin = data.daily.temperatureMin?.toFloat()
+//                val airMax = data.daily.temperatureMax?.toFloat()
                 val builder = RangedValueComplicationData.Builder(
                     value = current, min = min, max = safeMax,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_range_description))
@@ -93,9 +79,9 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 ).setText(PlainComplicationText.Builder(text).build())
                     .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setMonochromaticImage(image).setTapAction(tapAction)
-                if (airMin != null && airMax != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    builder.setColorRamp(temperatureColorRamp(min, airMin, airMax, safeMax))
-                }
+//                if (airMin != null && airMax != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    builder.setColorRamp(temperatureColorRamp(min, airMin, airMax, safeMax))
+//                }
                 builder.build()
             }
 
