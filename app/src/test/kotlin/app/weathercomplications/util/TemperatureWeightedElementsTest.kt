@@ -78,34 +78,34 @@ class TemperatureWeightedElementsTest {
     // computeTemperatureColors
 
     @Test
-    fun `color stops count equals degree span plus one`() {
-        // span = 18 - (-3) = 21 degrees → 22 stops
+    fun `color stops count is capped at MAX_COLOR_RAMP_STOPS`() {
+        // span = 21 degrees would give 22 stops, but cap is MAX_COLOR_RAMP_STOPS
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
-        assertEquals(22, colors.size)
+        assertEquals(MAX_COLOR_RAMP_STOPS, colors.size)
     }
 
     @Test
-    fun `cold zone stops are blue`() {
-        // stops 0..4 map to temps -3..-1 (below airMin=2)
+    fun `first stop is blue`() {
+        // stop 0 maps to apparentMin=-3, below airMin=2
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(Color.BLUE, colors[0])
-        assertEquals(Color.BLUE, colors[4])
     }
 
     @Test
-    fun `air zone stops are white`() {
-        // stops 5..18 map to temps 2..15 (airMin..airMax)
+    fun `last stop is orange`() {
+        // last stop maps to apparentMax=18, above airMax=15
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(COLOR_ORANGE, colors.last())
+    }
+
+    @Test
+    fun `middle stops spanning air range are white`() {
+        // with 8 stops over -3..18 (span=21), step=3 degrees per stop
+        // stop 2: -3 + 2*3 = 3° (above airMin=2) → white
+        // stop 5: -3 + 5*3 = 12° (below airMax=15) → white
+        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(Color.WHITE, colors[2])
         assertEquals(Color.WHITE, colors[5])
-        assertEquals(Color.WHITE, colors[18])
-    }
-
-    @Test
-    fun `heat zone stops are orange`() {
-        // stops 19..21 map to temps 16..18 (above airMax=15)
-        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
-        assertEquals(COLOR_ORANGE, colors[19])
-        assertEquals(COLOR_ORANGE, colors[21])
     }
 
     @Test

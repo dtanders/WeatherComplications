@@ -36,11 +36,13 @@ fun temperatureWeightedElements(
     )
 }
 
+internal const val MAX_COLOR_RAMP_STOPS = 8
+
 internal fun computeTemperatureColors(
     apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
 ): IntArray {
     val totalSpan = maxOf(apparentMax - apparentMin, 1f)
-    val numStops = maxOf(totalSpan.roundToInt() + 1, 2)
+    val numStops = minOf(maxOf(totalSpan.roundToInt() + 1, 2), MAX_COLOR_RAMP_STOPS)
     return IntArray(numStops) { i ->
         val temp = apparentMin + i * totalSpan / (numStops - 1)
         when {
