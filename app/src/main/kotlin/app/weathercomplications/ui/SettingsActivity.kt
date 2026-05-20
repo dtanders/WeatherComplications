@@ -134,7 +134,10 @@ class SettingsActivity : Activity() {
         tapOptions.add(TapOption(TAP_AUTO, getString(R.string.settings_tap_auto)))
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         packageManager.queryIntentActivities(launcherIntent, 0)
-            .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
+            .sortedWith(compareBy(
+                { !it.loadLabel(packageManager).toString().contains("weather", ignoreCase = true) },
+                { it.loadLabel(packageManager).toString().lowercase() }
+            ))
             .forEach { info ->
                 tapOptions.add(TapOption(info.activityInfo.packageName, info.loadLabel(packageManager).toString()))
             }
