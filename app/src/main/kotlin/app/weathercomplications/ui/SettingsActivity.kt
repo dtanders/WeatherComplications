@@ -2,13 +2,13 @@ package app.weathercomplications.ui
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import android.widget.RadioButton
+import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.wear.remote.interactions.RemoteActivityHelper
@@ -41,6 +41,10 @@ class SettingsActivity : Activity() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private lateinit var preferences: UserPreferencesStore
 
+    private data class TapOption(val tag: String, val label: String)
+
+    private val tapOptions = mutableListOf<TapOption>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
@@ -51,8 +55,8 @@ class SettingsActivity : Activity() {
         }
 
         val unitGroup = findViewById<RadioGroup>(R.id.unit_system_group)
-        val tapGroup = findViewById<RadioGroup>(R.id.tap_target_group)
         val aqiTypeGroup = findViewById<RadioGroup>(R.id.aqi_type_group)
+        val tapButton = findViewById<Button>(R.id.tap_target_button)
 
         val remoteActivityHelper = RemoteActivityHelper(this)
         findViewById<TextView>(R.id.attribution_open_meteo).setOnClickListener {
@@ -61,7 +65,7 @@ class SettingsActivity : Activity() {
             ).addListener({}, mainExecutor)
         }
 
-        populateTapTargets(tapGroup)
+        buildTapOptions()
 
         scope.launch {
             val savedUnit = preferences.unitSystem.first()
@@ -73,8 +77,9 @@ class SettingsActivity : Activity() {
                 UNIT_METRIC -> R.id.radio_metric
                 else -> R.id.radio_auto
             })
-            checkByTag(tapGroup, savedTap)
             aqiTypeGroup.check(if (savedAqiType == AQI_EU) R.id.radio_aqi_eu else R.id.radio_aqi_us)
+            tapButton.text = labelForTag(savedTap)
+            tapButton.tag = savedTap
 
             unitGroup.setOnCheckedChangeListener { _, checkedId ->
                 val system = when (checkedId) {
@@ -88,20 +93,33 @@ class SettingsActivity : Activity() {
                 }
             }
 
-            tapGroup.setOnCheckedChangeListener { _, checkedId ->
-                val pkg = tapGroup.findViewById<RadioButton>(checkedId)?.tag as? String ?: TAP_AUTO
-                scope.launch {
-                    preferences.setTapTarget(pkg)
-                    requestComplicationUpdates()
-                }
-            }
-
             aqiTypeGroup.setOnCheckedChangeListener { _, checkedId ->
                 val type = if (checkedId == R.id.radio_aqi_eu) AQI_EU else AQI_US
                 scope.launch {
                     preferences.setAqiType(type)
                     requestComplicationUpdates()
                 }
+            }
+
+            tapButton.setOnClickListener {
+                val currentIndex = tapOptions.indexOfFirst { it.tag == tapButton.tag }
+                    .coerceAtLeast(0)
+                AlertDialog.Builder(this@SettingsActivity)
+                    .setTitle(R.string.settings_tap_target_title)
+                    .setSingleChoiceItems(
+                        tapOptions.map { it.label }.toTypedArray(),
+                        currentIndex
+                    ) { dialog, which ->
+                        val selected = tapOptions[which].tag
+                        tapButton.text = tapOptions[which].label
+                        tapButton.tag = tapOptions[which].tag
+                        scope.launch {
+                            preferences.setTapTarget(selected)
+                            requestComplicationUpdates()
+                        }
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
     }
@@ -111,35 +129,20 @@ class SettingsActivity : Activity() {
         scope.cancel()
     }
 
-    private fun populateTapTargets(group: RadioGroup) {
-        fun addOption(tag: String, label: String) = group.addView(RadioButton(this).apply {
-            id = View.generateViewId()
-            text = label
-            this.tag = tag
-        })
-
-        addOption(TAP_AUTO, getString(R.string.settings_tap_auto))
-
+    private fun buildTapOptions() {
+        tapOptions.clear()
+        tapOptions.add(TapOption(TAP_AUTO, getString(R.string.settings_tap_auto)))
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         packageManager.queryIntentActivities(launcherIntent, 0)
             .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
             .forEach { info ->
-                addOption(info.activityInfo.packageName, info.loadLabel(packageManager).toString())
+                tapOptions.add(TapOption(info.activityInfo.packageName, info.loadLabel(packageManager).toString()))
             }
-
-        addOption(TAP_NONE, getString(R.string.settings_tap_none))
+        tapOptions.add(TapOption(TAP_NONE, getString(R.string.settings_tap_none)))
     }
 
-    private fun checkByTag(group: RadioGroup, target: String) {
-        for (i in 0 until group.childCount) {
-            val button = group.getChildAt(i) as? RadioButton ?: continue
-            if (button.tag == target) {
-                group.check(button.id)
-                return
-            }
-        }
-        group.check((group.getChildAt(0) as? RadioButton)?.id ?: return)
-    }
+    private fun labelForTag(tag: String): String =
+        tapOptions.firstOrNull { it.tag == tag }?.label ?: getString(R.string.settings_tap_auto)
 
     private fun requestComplicationUpdates() {
         listOf(

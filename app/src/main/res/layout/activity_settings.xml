@@ -88,13 +88,13 @@
             android:layout_height="wrap_content"
             android:text="@string/settings_tap_target_title"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:paddingBottom="12dp"/>
+            android:paddingBottom="4dp"/>
 
-        <!-- Populated dynamically from installed launchable apps -->
-        <RadioGroup
-            android:id="@+id/tap_target_group"
+        <Button
+            android:id="@+id/tap_target_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
             android:id="@+id/attribution_open_meteo"
