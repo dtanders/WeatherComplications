@@ -1,5 +1,6 @@
 package app.weathercomplications.util
 
+import android.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -72,6 +73,51 @@ class TemperatureWeightedElementsTest {
         val minWeight = totalSpan * 0.05f
         assertTrue("cold weight ${weights[0]} should be >= minWeight $minWeight",
             weights[0] >= minWeight)
+    }
+
+    // computeTemperatureColors
+
+    @Test
+    fun `color stops count equals degree span plus one`() {
+        // span = 18 - (-3) = 21 degrees → 22 stops
+        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(22, colors.size)
+    }
+
+    @Test
+    fun `cold zone stops are blue`() {
+        // stops 0..4 map to temps -3..-1 (below airMin=2)
+        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(Color.BLUE, colors[0])
+        assertEquals(Color.BLUE, colors[4])
+    }
+
+    @Test
+    fun `air zone stops are white`() {
+        // stops 5..18 map to temps 2..15 (airMin..airMax)
+        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(Color.WHITE, colors[5])
+        assertEquals(Color.WHITE, colors[18])
+    }
+
+    @Test
+    fun `heat zone stops are orange`() {
+        // stops 19..21 map to temps 16..18 (above airMax=15)
+        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+        assertEquals(COLOR_ORANGE, colors[19])
+        assertEquals(COLOR_ORANGE, colors[21])
+    }
+
+    @Test
+    fun `all white when apparent range equals air range`() {
+        val colors = computeTemperatureColors(0f, 0f, 10f, 10f)
+        assertTrue(colors.all { it == Color.WHITE })
+    }
+
+    @Test
+    fun `minimum two stops for degenerate range`() {
+        val colors = computeTemperatureColors(5f, 5f, 5f, 5f)
+        assertEquals(2, colors.size)
     }
 
     @Test

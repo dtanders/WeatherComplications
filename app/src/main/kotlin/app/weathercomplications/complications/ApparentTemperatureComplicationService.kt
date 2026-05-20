@@ -7,6 +7,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
+import app.weathercomplications.util.temperatureColorRamp
 import app.weathercomplications.util.temperatureWeightedElements
 
 class ApparentTemperatureComplicationService : BaseWeatherComplicationService() {
@@ -25,11 +26,13 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 .setMonochromaticImage(image).build()
 
             ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(
-                value = 12.3f, min = 5f, max = 20f,
+                value = 12.3f, min = -3f, max = 18f,
                 contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_range_description)).build()
             ).setText(PlainComplicationText.Builder(text).build())
                 .setTitle(PlainComplicationText.Builder(title).build())
-                .setMonochromaticImage(image).build()
+                .setMonochromaticImage(image)
+                .setColorRamp(temperatureColorRamp(-3f, 2f, 15f, 18f))
+                .build()
 
             ComplicationType.WEIGHTED_ELEMENTS -> {
                 val elements = temperatureWeightedElements(
@@ -73,12 +76,21 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 val max = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
                 val safeMax = if (max > min) max else min + 1f
                 val current = (data.current.apparentTemperature?.toFloat() ?: min).coerceIn(min, safeMax)
-                RangedValueComplicationData.Builder(
+                val tempTitle = formatter.formatApparentTemperature(max.toDouble()) +
+                    "/" +
+                    formatter.formatApparentTemperature(min.toDouble())
+                val airMin = data.daily.temperatureMin?.toFloat()
+                val airMax = data.daily.temperatureMax?.toFloat()
+                val builder = RangedValueComplicationData.Builder(
                     value = current, min = min, max = safeMax,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_range_description)).build()
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build())
-                    .setMonochromaticImage(image).setTapAction(tapAction).build()
+                    .setTitle(PlainComplicationText.Builder(tempTitle).build())
+                    .setMonochromaticImage(image).setTapAction(tapAction)
+                if (airMin != null && airMax != null) {
+                    builder.setColorRamp(temperatureColorRamp(min, airMin, airMax, safeMax))
+                }
+                builder.build()
             }
 
             ComplicationType.WEIGHTED_ELEMENTS -> {
@@ -89,14 +101,18 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 val elements = temperatureWeightedElements(
                     apparentMin = apparentMin, airMin = airMin, airMax = airMax, apparentMax = apparentMax
                 )
+                val tempTitle = formatter.formatApparentTemperature(apparentMax.toDouble()) +
+                        "|" +
+                        formatter.formatApparentTemperature(apparentMin.toDouble())
                 WeightedElementsComplicationData.Builder(
                     elements = elements,
                     contentDescription = PlainComplicationText.Builder(
                         getString(R.string.apparent_temperature_weighted_description)
                     ).build()
                 ).setText(PlainComplicationText.Builder(text).build())
-                    .setTitle(PlainComplicationText.Builder(title).build())
+                    .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setTapAction(tapAction)
+                    .setMonochromaticImage(image)
                     .build()
             }
 
