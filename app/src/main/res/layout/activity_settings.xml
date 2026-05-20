@@ -53,26 +53,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/settings_tap_target_title"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:paddingBottom="12dp"/>
-
-        <!-- Populated dynamically from installed launchable apps -->
-        <RadioGroup
-            android:id="@+id/tap_target_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/settings_aqi_type_title"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:paddingBottom="12dp"/>
@@ -95,6 +75,26 @@
                 android:text="@string/settings_aqi_eu"/>
 
         </RadioGroup>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_tap_target_title"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingBottom="12dp"/>
+
+        <!-- Populated dynamically from installed launchable apps -->
+        <RadioGroup
+            android:id="@+id/tap_target_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <TextView
             android:id="@+id/attribution_open_meteo"
