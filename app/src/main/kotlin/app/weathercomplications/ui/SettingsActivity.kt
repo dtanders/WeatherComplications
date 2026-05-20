@@ -112,25 +112,22 @@ class SettingsActivity : Activity() {
     }
 
     private fun populateTapTargets(group: RadioGroup) {
-        listOf(TAP_AUTO to getString(R.string.settings_tap_auto),
-               TAP_NONE to getString(R.string.settings_tap_none)).forEach { (tag, label) ->
-            group.addView(RadioButton(this).apply {
-                id = View.generateViewId()
-                text = label
-                this.tag = tag
-            })
-        }
+        fun addOption(tag: String, label: String) = group.addView(RadioButton(this).apply {
+            id = View.generateViewId()
+            text = label
+            this.tag = tag
+        })
+
+        addOption(TAP_AUTO, getString(R.string.settings_tap_auto))
 
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         packageManager.queryIntentActivities(launcherIntent, 0)
             .sortedBy { it.loadLabel(packageManager).toString().lowercase() }
             .forEach { info ->
-                group.addView(RadioButton(this).apply {
-                    id = View.generateViewId()
-                    text = info.loadLabel(packageManager).toString()
-                    tag = info.activityInfo.packageName
-                })
+                addOption(info.activityInfo.packageName, info.loadLabel(packageManager).toString())
             }
+
+        addOption(TAP_NONE, getString(R.string.settings_tap_none))
     }
 
     private fun checkByTag(group: RadioGroup, target: String) {
