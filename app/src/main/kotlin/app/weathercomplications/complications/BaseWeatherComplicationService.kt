@@ -40,8 +40,9 @@ abstract class BaseWeatherComplicationService : SuspendingComplicationDataSource
         Log.d(LOG_TAG, "${javaClass.simpleName} onComplicationRequest type=${request.complicationType}")
         return runCatching { buildComplicationData(request) }
             .onFailure {
-                if (it is CancellationException) throw it
-                Log.e(LOG_TAG, "${javaClass.simpleName} buildComplicationData failed", it)
+                if (it !is CancellationException) {
+                    Log.e(LOG_TAG, "${javaClass.simpleName} buildComplicationData failed", it)
+                }
             }
             .getOrNull()
     }
