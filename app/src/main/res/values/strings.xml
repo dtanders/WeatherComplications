@@ -6,6 +6,7 @@
     <string name="humidity_complication_label">Relative Humidity</string>
     <string name="dewpoint_complication_label">Dewpoint</string>
     <string name="apparent_temperature_complication_label">Apparent Temperature</string>
+    <string name="apparent_temperature_weighted_complication_label">Apparent Temperature (Weighted)</string>
     <string name="snow_depth_complication_label">Snow Depth</string>
     <string name="visibility_complication_label">Visibility</string>
     <string name="uv_index_complication_label">UV Index</string>
