@@ -7,19 +7,24 @@ import kotlin.math.roundToInt
 
 internal const val COLOR_ORANGE = (255 shl 24) or (255 shl 16) or (140 shl 8)
 
-internal fun computeTemperatureWeights(
+internal fun buildTemperatureElements(
     apparentMin: Float,
     airMin: Float,
     airMax: Float,
-    apparentMax: Float
-): FloatArray {
+    apparentMax: Float,
+    maxElements: Int
+): List<WeightedElementsComplicationData.Element> {
+    val numElements = maxOf(maxElements, 2)
     val totalSpan = maxOf(apparentMax - apparentMin, 1f)
-    val minWeight = totalSpan * 0.05f
-    return floatArrayOf(
-        maxOf(airMin - apparentMin, minWeight),
-        maxOf(airMax - airMin, minWeight),
-        maxOf(apparentMax - airMax, minWeight)
-    )
+    return List(numElements) { i ->
+        val temp = apparentMin + i * totalSpan / (numElements - 1)
+        val color = when {
+            temp < airMin -> Color.BLUE
+            temp > airMax -> COLOR_ORANGE
+            else -> Color.WHITE
+        }
+        WeightedElementsComplicationData.Element(1f, color)
+    }
 }
 
 fun temperatureWeightedElements(
@@ -27,14 +32,11 @@ fun temperatureWeightedElements(
     airMin: Float,
     airMax: Float,
     apparentMax: Float
-): List<WeightedElementsComplicationData.Element> {
-    val weights = computeTemperatureWeights(apparentMin, airMin, airMax, apparentMax)
-    return listOf(
-        WeightedElementsComplicationData.Element(weights[0], Color.BLUE),
-        WeightedElementsComplicationData.Element(weights[1], Color.WHITE),
-        WeightedElementsComplicationData.Element(weights[2], COLOR_ORANGE)
+): List<WeightedElementsComplicationData.Element> =
+    buildTemperatureElements(
+        apparentMin, airMin, airMax, apparentMax,
+        WeightedElementsComplicationData.getMaxElements()
     )
-}
 
 internal const val MAX_COLOR_RAMP_STOPS = 8
 

@@ -7,99 +7,70 @@ import org.junit.Test
 
 class TemperatureWeightedElementsTest {
 
-    @Test
-    fun `normal case - cold extension weight`() {
-        // apparent -3, air low 2, air high 15, apparent 18
-        // cold: 2 - (-3) = 5
-        val weights = computeTemperatureWeights(-3f, 2f, 15f, 18f)
-        assertEquals(5f, weights[0], 0.001f)
+    // buildTemperatureElements
+
+    @Test fun `element count matches maxElements parameter`() {
+        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
+        assertEquals(7, elements.size)
     }
 
-    @Test
-    fun `normal case - air range weight`() {
-        // air: 15 - 2 = 13
-        val weights = computeTemperatureWeights(-3f, 2f, 15f, 18f)
-        assertEquals(13f, weights[1], 0.001f)
+    @Test fun `first element is blue`() {
+        // stop 0 maps to apparentMin=-3, below airMin=2
+        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
+        assertEquals(Color.BLUE, elements.first().color)
     }
 
-    @Test
-    fun `normal case - heat extension weight`() {
-        // heat: 18 - 15 = 3
-        val weights = computeTemperatureWeights(-3f, 2f, 15f, 18f)
-        assertEquals(3f, weights[2], 0.001f)
+    @Test fun `last element is orange`() {
+        // last stop maps to apparentMax=18, above airMax=15
+        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
+        assertEquals(COLOR_ORANGE, elements.last().color)
     }
 
-    @Test
-    fun `returns exactly three weights`() {
-        val weights = computeTemperatureWeights(-3f, 2f, 15f, 18f)
-        assertEquals(3, weights.size)
+    @Test fun `middle elements spanning air range are white`() {
+        // 7 elements over -3..18 (span=21), step=3.5 per element
+        // element 2: -3 + 2*3.5 = 4° (above airMin=2) → white
+        // element 4: -3 + 4*3.5 = 11° (below airMax=15) → white
+        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
+        assertEquals(Color.WHITE, elements[2].color)
+        assertEquals(Color.WHITE, elements[4].color)
     }
 
-    @Test
-    fun `zero cold extension gets minimum sliver`() {
-        // apparentMin == airMin, totalSpan = 18 - 2 = 16, minWeight = 0.8
-        val weights = computeTemperatureWeights(2f, 2f, 15f, 18f)
-        val totalSpan = 18f - 2f
-        val minWeight = totalSpan * 0.05f
-        assertTrue("cold weight ${weights[0]} should be >= minWeight $minWeight",
-            weights[0] >= minWeight)
+    @Test fun `elements all white when apparent range equals air range`() {
+        val elements = buildTemperatureElements(0f, 0f, 10f, 10f, 7)
+        assertTrue(elements.all { it.color == Color.WHITE })
     }
 
-    @Test
-    fun `zero heat extension gets minimum sliver`() {
-        // apparentMax == airMax, totalSpan = 18 - (-3) = 21, minWeight = 1.05
-        val weights = computeTemperatureWeights(-3f, 2f, 18f, 18f)
-        val totalSpan = 18f - (-3f)
-        val minWeight = totalSpan * 0.05f
-        assertTrue("heat weight ${weights[2]} should be >= minWeight $minWeight",
-            weights[2] >= minWeight)
+    @Test fun `minimum two elements for degenerate range`() {
+        val elements = buildTemperatureElements(5f, 5f, 5f, 5f, 1)
+        assertEquals(2, elements.size)
     }
 
-    @Test
-    fun `both extensions zero get slivers`() {
-        // apparent range equals air range: 2..15
-        val weights = computeTemperatureWeights(2f, 2f, 15f, 15f)
-        val totalSpan = maxOf(15f - 2f, 1f)
-        val minWeight = totalSpan * 0.05f
-        assertTrue(weights[0] >= minWeight)
-        assertTrue(weights[2] >= minWeight)
-    }
-
-    @Test
-    fun `inverted cold input - apparent warmer than air low - gets sliver`() {
-        // unusual: apparent min 5 > air min 2 (apparent is warmer, no wind chill)
-        val weights = computeTemperatureWeights(5f, 2f, 15f, 18f)
-        val totalSpan = maxOf(18f - 5f, 1f)
-        val minWeight = totalSpan * 0.05f
-        assertTrue("cold weight ${weights[0]} should be >= minWeight $minWeight",
-            weights[0] >= minWeight)
+    @Test fun `all elements have equal weight`() {
+        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
+        assertTrue(elements.all { it.weight == 1f })
     }
 
     // computeTemperatureColors
 
-    @Test
-    fun `color stops count is capped at MAX_COLOR_RAMP_STOPS`() {
+    @Test fun `color stops count is capped at MAX_COLOR_RAMP_STOPS`() {
         // span = 21 degrees would give 22 stops, but cap is MAX_COLOR_RAMP_STOPS
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(MAX_COLOR_RAMP_STOPS, colors.size)
     }
 
-    @Test
-    fun `first stop is blue`() {
+    @Test fun `first stop is blue`() {
         // stop 0 maps to apparentMin=-3, below airMin=2
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(Color.BLUE, colors[0])
     }
 
-    @Test
-    fun `last stop is orange`() {
+    @Test fun `last stop is orange`() {
         // last stop maps to apparentMax=18, above airMax=15
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(COLOR_ORANGE, colors.last())
     }
 
-    @Test
-    fun `middle stops spanning air range are white`() {
+    @Test fun `middle stops spanning air range are white`() {
         // with 8 stops over -3..18 (span=21), step=3 degrees per stop
         // stop 2: -3 + 2*3 = 3° (above airMin=2) → white
         // stop 5: -3 + 5*3 = 12° (below airMax=15) → white
@@ -108,26 +79,13 @@ class TemperatureWeightedElementsTest {
         assertEquals(Color.WHITE, colors[5])
     }
 
-    @Test
-    fun `all white when apparent range equals air range`() {
+    @Test fun `all white when apparent range equals air range`() {
         val colors = computeTemperatureColors(0f, 0f, 10f, 10f)
         assertTrue(colors.all { it == Color.WHITE })
     }
 
-    @Test
-    fun `minimum two stops for degenerate range`() {
+    @Test fun `minimum two stops for degenerate range`() {
         val colors = computeTemperatureColors(5f, 5f, 5f, 5f)
         assertEquals(2, colors.size)
-    }
-
-    @Test
-    fun `all equal temperatures uses minimum 1f span`() {
-        // degenerate: all same temperature
-        val weights = computeTemperatureWeights(10f, 10f, 10f, 10f)
-        // totalSpan = max(0, 1f) = 1f, minWeight = 0.05f
-        val minWeight = 1f * 0.05f
-        assertTrue(weights[0] >= minWeight)
-        assertTrue(weights[1] >= minWeight)
-        assertTrue(weights[2] >= minWeight)
     }
 }
