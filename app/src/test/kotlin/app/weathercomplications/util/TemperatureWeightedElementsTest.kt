@@ -45,9 +45,11 @@ class TemperatureWeightedElementsTest {
         assertEquals(2, elements.size)
     }
 
-    @Test fun `all elements have equal weight`() {
+    @Test fun `all elements have equal weight summing to 1`() {
         val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        assertTrue(elements.all { it.weight == 1f })
+        val expectedWeight = 1f / 7
+        assertTrue(elements.all { it.weight == expectedWeight })
+        assertEquals(1f, elements.sumOf { it.weight.toDouble() }.toFloat(), 0.001f)
     }
 
     // computeTemperatureColors

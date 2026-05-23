@@ -16,6 +16,7 @@ internal fun buildTemperatureElements(
 ): List<WeightedElementsComplicationData.Element> {
     val numElements = maxOf(maxElements, 2)
     val totalSpan = maxOf(apparentMax - apparentMin, 1f)
+    val weight = 1f / numElements
     return List(numElements) { i ->
         val temp = apparentMin + i * totalSpan / (numElements - 1)
         val color = when {
@@ -23,7 +24,7 @@ internal fun buildTemperatureElements(
             temp > airMax -> COLOR_ORANGE
             else -> Color.WHITE
         }
-        WeightedElementsComplicationData.Element(1f, color)
+        WeightedElementsComplicationData.Element(weight, color)
     }
 }
 
