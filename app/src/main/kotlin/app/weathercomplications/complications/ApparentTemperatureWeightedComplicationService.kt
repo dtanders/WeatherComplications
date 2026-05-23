@@ -1,15 +1,19 @@
 package app.weathercomplications.complications
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
+import app.weathercomplications.util.LOG_TAG
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
 import app.weathercomplications.util.temperatureWeightedElements
 
 class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationService() {
 
+    @SuppressLint("NewApi")
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         val formatter = WeatherFormatter()
         val text = formatter.formatApparentTemperature(12.3)
@@ -39,6 +43,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
         }
     }
 
+    @SuppressLint("NewApi")
     override suspend fun buildComplicationData(request: ComplicationRequest): ComplicationData? {
         if (request.complicationType != ComplicationType.SHORT_TEXT &&
             request.complicationType != ComplicationType.WEIGHTED_ELEMENTS) return null
@@ -66,6 +71,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                 val tempTitle = formatter.formatTemperatureRange(
                     apparentMin.toDouble(), apparentMax.toDouble()
                 )
+
                 WeightedElementsComplicationData.Builder(
                     elements = temperatureWeightedElements(apparentMin, airMin, airMax, apparentMax),
                     contentDescription = PlainComplicationText.Builder(
