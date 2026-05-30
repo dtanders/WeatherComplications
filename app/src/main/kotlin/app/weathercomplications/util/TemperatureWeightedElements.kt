@@ -1,12 +1,16 @@
 package app.weathercomplications.util
 
 import android.graphics.Color
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ColorRamp
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
 import kotlin.math.roundToInt
 
 internal const val COLOR_ORANGE = (255 shl 24) or (255 shl 16) or (140 shl 8)
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal fun buildTemperatureElements(
     apparentMin: Float,
     airMin: Float,
@@ -24,10 +28,12 @@ internal fun buildTemperatureElements(
             temp > airMax -> COLOR_ORANGE
             else -> Color.WHITE
         }
+        Log.d(LOG_TAG, "Built Element: weight=${weight}, color=${color}")
         WeightedElementsComplicationData.Element(weight, color)
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun temperatureWeightedElements(
     apparentMin: Float,
     airMin: Float,
@@ -41,6 +47,7 @@ fun temperatureWeightedElements(
 
 internal const val MAX_COLOR_RAMP_STOPS = 8
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal fun computeTemperatureColors(
     apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
 ): IntArray {
@@ -56,6 +63,7 @@ internal fun computeTemperatureColors(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun temperatureColorRamp(
     apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
 ): ColorRamp = ColorRamp(

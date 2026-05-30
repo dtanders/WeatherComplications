@@ -7,6 +7,7 @@
     <string name="dewpoint_complication_label">Dewpoint</string>
     <string name="apparent_temperature_complication_label">Apparent Temperature</string>
     <string name="apparent_temperature_weighted_complication_label">Apparent Temperature (Weighted)</string>
+    <string name="apparent_temperature_goal_complication_label">Apparent Temperature (Goal)</string>
     <string name="snow_depth_complication_label">Snow Depth</string>
     <string name="visibility_complication_label">Visibility</string>
     <string name="uv_index_complication_label">UV Index</string>
@@ -27,6 +28,7 @@
     <string name="apparent_temperature_description">Apparent Temperature %s</string>
     <string name="apparent_temperature_range_description">Apparent Temperature Range</string>
     <string name="apparent_temperature_weighted_description">Temperature range with apparent temperature extremes</string>
+    <string name="apparent_temperature_goal_description">Apparent temperature progress through daily range</string>
     <string name="snow_depth_description">Snow Depth %s</string>
     <string name="snow_depth_range_description">Snow Depth Range</string>
     <string name="visibility_description">Visibility %s</string>

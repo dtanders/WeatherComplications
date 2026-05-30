@@ -16,6 +16,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationDataSourceUp
 import app.weathercomplications.R
 import app.weathercomplications.complications.AqiComplicationService
 import app.weathercomplications.complications.ApparentTemperatureComplicationService
+import app.weathercomplications.complications.ApparentTemperatureGoalProgressComplicationService
 import app.weathercomplications.complications.ApparentTemperatureWeightedComplicationService
 import app.weathercomplications.complications.DewpointComplicationService
 import app.weathercomplications.complications.HumidityComplicationService
@@ -158,6 +159,7 @@ class SettingsActivity : Activity() {
             DewpointComplicationService::class.java,
             ApparentTemperatureComplicationService::class.java,
             ApparentTemperatureWeightedComplicationService::class.java,
+            ApparentTemperatureGoalProgressComplicationService::class.java,
             SnowDepthComplicationService::class.java,
             VisibilityComplicationService::class.java,
             UvIndexComplicationService::class.java,
