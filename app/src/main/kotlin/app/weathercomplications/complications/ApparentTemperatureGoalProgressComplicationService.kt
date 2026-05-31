@@ -7,7 +7,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
-import app.weathercomplications.util.temperatureColorRamp
+import app.weathercomplications.util.goalProgressColorRamp
 
 class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicationService() {
 
@@ -40,7 +40,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                         formatter.formatTemperatureRange(-3.0, 18.0)
                     ).build())
                     .setMonochromaticImage(image)
-                    .setColorRamp(temperatureColorRamp(apparentMin, 2f, 15f, apparentMax))
+                    .setColorRamp(goalProgressColorRamp(apparentMin, 2f, 15f, apparentMax))
                     .build()
             }
 
@@ -87,7 +87,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                     .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setMonochromaticImage(image)
                     .setTapAction(tapAction)
-                    .setColorRamp(temperatureColorRamp(apparentMin, airMin, airMax, apparentMax))
+                    .setColorRamp(goalProgressColorRamp(apparentMin, airMin, airMax, apparentMax))
                     .build()
             }
 
