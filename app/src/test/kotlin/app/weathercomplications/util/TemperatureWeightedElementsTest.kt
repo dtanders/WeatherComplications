@@ -7,49 +7,58 @@ import org.junit.Test
 
 class TemperatureWeightedElementsTest {
 
-    // buildTemperatureElements
+    // buildTemperatureElements — 4 proportional segments:
+    // [apparentMin→airMin] blue | [airMin→current] gray | [current→airMax] white | [airMax→apparentMax] orange
 
-    @Test fun `element count matches maxElements parameter`() {
-        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        assertEquals(7, elements.size)
+    private val elements = buildTemperatureElements(-3f, 2f, 12.3f, 15f, 18f)
+
+    @Test fun `returns four elements for typical range`() {
+        assertEquals(4, elements.size)
     }
 
-    @Test fun `first element is blue`() {
-        // stop 0 maps to apparentMin=-3, below airMin=2
-        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        assertEquals(Color.BLUE, elements.first().color)
-    }
-
-    @Test fun `last element is orange`() {
-        // last stop maps to apparentMax=18, above airMax=15
-        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        assertEquals(COLOR_ORANGE, elements.last().color)
-    }
-
-    @Test fun `middle elements spanning air range are white`() {
-        // 7 elements over -3..18 (span=21), step=3.5 per element
-        // element 2: -3 + 2*3.5 = 4° (above airMin=2) → white
-        // element 4: -3 + 4*3.5 = 11° (below airMax=15) → white
-        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        assertEquals(Color.WHITE, elements[2].color)
-        assertEquals(Color.WHITE, elements[4].color)
-    }
-
-    @Test fun `elements all white when apparent range equals air range`() {
-        val elements = buildTemperatureElements(0f, 0f, 10f, 10f, 7)
-        assertTrue(elements.all { it.color == Color.WHITE })
-    }
-
-    @Test fun `minimum two elements for degenerate range`() {
-        val elements = buildTemperatureElements(5f, 5f, 5f, 5f, 1)
-        assertEquals(2, elements.size)
-    }
-
-    @Test fun `all elements have equal weight summing to 1`() {
-        val elements = buildTemperatureElements(-3f, 2f, 15f, 18f, 7)
-        val expectedWeight = 1f / 7
-        assertTrue(elements.all { it.weight == expectedWeight })
+    @Test fun `weights sum to 1`() {
         assertEquals(1f, elements.sumOf { it.weight.toDouble() }.toFloat(), 0.001f)
+    }
+
+    @Test fun `segment colors are blue gray white orange`() {
+        assertEquals(Color.BLUE,   elements[0].color)
+        assertEquals(Color.GRAY,   elements[1].color)
+        assertEquals(Color.WHITE,  elements[2].color)
+        assertEquals(COLOR_ORANGE, elements[3].color)
+    }
+
+    @Test fun `weights are proportional to temperature spans`() {
+        // span = 18 - (-3) = 21
+        // w1 = (2 - -3) / 21 = 5/21
+        // w2 = (12.3 - 2) / 21 = 10.3/21
+        // w3 = (15 - 12.3) / 21 = 2.7/21
+        // w4 = (18 - 15) / 21 = 3/21
+        val span = 21f
+        assertEquals(5f / span,    elements[0].weight, 0.001f)
+        assertEquals(10.3f / span, elements[1].weight, 0.001f)
+        assertEquals(2.7f / span,  elements[2].weight, 0.001f)
+        assertEquals(3f / span,    elements[3].weight, 0.001f)
+    }
+
+    @Test fun `zero-span segments are omitted`() {
+        // current at airMin → gray segment collapses
+        val result = buildTemperatureElements(-3f, 2f, 2f, 15f, 18f)
+        assertEquals(3, result.size)
+        assertTrue(result.none { it.color == Color.GRAY })
+    }
+
+    @Test fun `current clamped when above apparentMax`() {
+        // current clamped to 18 → white segment (current→airMax) collapses
+        val result = buildTemperatureElements(-3f, 2f, 25f, 15f, 18f)
+        assertEquals(3, result.size)
+        assertTrue(result.none { it.color == Color.WHITE })
+    }
+
+    @Test fun `current clamped when below apparentMin`() {
+        // current clamped to -3 → gray segment (airMin→current) collapses
+        val result = buildTemperatureElements(-3f, 2f, -10f, 15f, 18f)
+        assertEquals(3, result.size)
+        assertTrue(result.none { it.color == Color.GRAY })
     }
 
     // computeTemperatureColors
@@ -61,13 +70,11 @@ class TemperatureWeightedElementsTest {
     }
 
     @Test fun `first stop is blue`() {
-        // stop 0 maps to apparentMin=-3, below airMin=2
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(Color.BLUE, colors[0])
     }
 
     @Test fun `last stop is orange`() {
-        // last stop maps to apparentMax=18, above airMax=15
         val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
         assertEquals(COLOR_ORANGE, colors.last())
     }

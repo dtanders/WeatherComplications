@@ -2,11 +2,9 @@ package app.weathercomplications.complications
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.Icon
-import android.util.Log
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
-import app.weathercomplications.util.LOG_TAG
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
 import app.weathercomplications.util.temperatureWeightedElements
@@ -29,7 +27,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                 .setMonochromaticImage(image).build()
 
             ComplicationType.WEIGHTED_ELEMENTS -> WeightedElementsComplicationData.Builder(
-                elements = temperatureWeightedElements(-3f, 2f, 15f, 18f),
+                elements = temperatureWeightedElements(-3f, 2f, 12.3f, 15f, 18f),
                 contentDescription = PlainComplicationText.Builder(
                     getString(R.string.apparent_temperature_weighted_description)
                 ).build()
@@ -64,16 +62,16 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                 .setMonochromaticImage(image).setTapAction(tapAction).build()
 
             ComplicationType.WEIGHTED_ELEMENTS -> {
-                val apparentMin = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
-                val apparentMax = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
-                val airMin = data.daily.temperatureMin?.toFloat() ?: return null
-                val airMax = data.daily.temperatureMax?.toFloat() ?: return null
+                val currentApparent = data?.current?.apparentTemperature?.toFloat() ?: return null
+                val apparentMin = data.daily?.apparentTemperatureMin?.toFloat() ?: return null
+                val apparentMax = data.daily?.apparentTemperatureMax?.toFloat() ?: return null
+                val airMin = data.daily?.temperatureMin?.toFloat() ?: return null
+                val airMax = data.daily?.temperatureMax?.toFloat() ?: return null
                 val tempTitle = formatter.formatTemperatureRange(
                     apparentMin.toDouble(), apparentMax.toDouble()
                 )
-
                 WeightedElementsComplicationData.Builder(
-                    elements = temperatureWeightedElements(apparentMin, airMin, airMax, apparentMax),
+                    elements = temperatureWeightedElements(apparentMin, airMin, currentApparent, airMax, apparentMax),
                     contentDescription = PlainComplicationText.Builder(
                         getString(R.string.apparent_temperature_weighted_description)
                     ).build()
