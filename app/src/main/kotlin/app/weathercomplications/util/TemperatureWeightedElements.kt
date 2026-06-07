@@ -73,11 +73,27 @@ fun temperatureColorRamp(
     interpolated = false
 )
 
+// Builds a ramp whose stops are assigned by which of the 4 zones each equally-spaced
+// arc fraction falls in: blue (apparent cold) | gray (air-low→current) |
+// white (current→air-high) | orange (apparent heat).
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun goalProgressColorRamp(
-    apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
-): ColorRamp = ColorRamp(
-    colors = computeTemperatureColors(apparentMin, airMin, airMax, apparentMax,
-        WeightedElementsComplicationData.getMaxElements()),
-    interpolated = false
-)
+    apparentMin: Float, airMin: Float, currentApparent: Float, airMax: Float, apparentMax: Float
+): ColorRamp {
+    val totalSpan = maxOf(apparentMax - apparentMin, 1f)
+    val current = currentApparent.coerceIn(apparentMin, apparentMax)
+    val f1 = (airMin - apparentMin) / totalSpan
+    val f2 = (current - apparentMin) / totalSpan
+    val f3 = (airMax - apparentMin) / totalSpan
+    val maxStops = WeightedElementsComplicationData.getMaxElements()
+    val colors = IntArray(maxStops) { i ->
+        val fraction = i.toFloat() / (maxStops - 1)
+        when {
+            fraction < f1 -> Color.BLUE
+            fraction < f2 -> Color.GRAY
+            fraction < f3 -> Color.WHITE
+            else -> COLOR_ORANGE
+        }
+    }
+    return ColorRamp(colors, interpolated = false)
+}

@@ -40,7 +40,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                         formatter.formatTemperatureRange(-3.0, 18.0)
                     ).build())
                     .setMonochromaticImage(image)
-                    .setColorRamp(goalProgressColorRamp(apparentMin, 2f, 15f, apparentMax))
+                    .setColorRamp(goalProgressColorRamp(apparentMin, 2f, 12.3f, 15f, apparentMax))
                     .build()
             }
 
@@ -87,7 +87,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                     .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setMonochromaticImage(image)
                     .setTapAction(tapAction)
-                    .setColorRamp(goalProgressColorRamp(apparentMin, airMin, airMax, apparentMax))
+                    .setColorRamp(goalProgressColorRamp(apparentMin, airMin, currentApparent, airMax, apparentMax))
                     .build()
             }
 
