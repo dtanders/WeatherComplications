@@ -61,40 +61,63 @@ class TemperatureWeightedElementsTest {
         assertTrue(result.none { it.color == Color.GRAY })
     }
 
-    // computeTemperatureColors
+    // temperatureArc — 3 segments over the widened range min(lows)..max(highs):
+    // blue |airMin−apparentMin| | white middle | orange |apparentMax−airMax|,
+    // rendered as 7 equal ColorRamp blocks allocated by largest remainder.
 
-    @Test fun `color stops count is capped at MAX_COLOR_RAMP_STOPS`() {
-        // span = 21 degrees would give 22 stops, but cap is MAX_COLOR_RAMP_STOPS
-        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
-        assertEquals(MAX_COLOR_RAMP_STOPS, colors.size)
+    @Test fun `arc spans apparent range when apparent is wider`() {
+        val arc = temperatureArc(-3f, 2f, 15f, 18f)
+        assertEquals(-3f, arc.min)
+        assertEquals(18f, arc.max)
     }
 
-    @Test fun `first stop is blue`() {
-        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
-        assertEquals(Color.BLUE, colors[0])
+    @Test fun `arc spans air range when air is wider`() {
+        // absolute-difference case: apparent range inside air range
+        val arc = temperatureArc(5f, 2f, 15f, 13f)
+        assertEquals(2f, arc.min)
+        assertEquals(15f, arc.max)
     }
 
-    @Test fun `last stop is orange`() {
-        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
+    @Test fun `typical input yields seven blocks proportional to spans`() {
+        // spans 5 : 13 : 3 over 21 → ideal 1.67 : 4.33 : 1.0 → blocks 2 : 4 : 1
+        val colors = temperatureArc(-3f, 2f, 15f, 18f).ramp.colors
+        assertEquals(7, colors.size)
+        assertEquals(listOf(Color.BLUE, Color.BLUE), colors.take(2))
+        assertEquals(List(4) { Color.WHITE }, colors.drop(2).take(4))
         assertEquals(COLOR_ORANGE, colors.last())
     }
 
-    @Test fun `middle stops spanning air range are white`() {
-        // with 8 stops over -3..18 (span=21), step=3 degrees per stop
-        // stop 2: -3 + 2*3 = 3° (above airMin=2) → white
-        // stop 5: -3 + 5*3 = 12° (below airMax=15) → white
-        val colors = computeTemperatureColors(-3f, 2f, 15f, 18f)
-        assertEquals(Color.WHITE, colors[2])
-        assertEquals(Color.WHITE, colors[5])
+    @Test fun `tiny nonzero gaps still get one block each`() {
+        val colors = temperatureArc(-3f, -2.9f, 15f, 15.1f).ramp.colors
+        assertEquals(7, colors.size)
+        assertEquals(Color.BLUE, colors.first())
+        assertEquals(COLOR_ORANGE, colors.last())
+        assertEquals(5, colors.count { it == Color.WHITE })
     }
 
-    @Test fun `all white when apparent range equals air range`() {
-        val colors = computeTemperatureColors(0f, 0f, 10f, 10f)
-        assertTrue(colors.all { it == Color.WHITE })
+    @Test fun `zero cold gap omits blue`() {
+        val colors = temperatureArc(2f, 2f, 15f, 18f).ramp.colors
+        assertEquals(7, colors.size)
+        assertTrue(colors.none { it == Color.BLUE })
+        assertEquals(Color.WHITE, colors.first())
+        assertEquals(COLOR_ORANGE, colors.last())
     }
 
-    @Test fun `minimum two stops for degenerate range`() {
-        val colors = computeTemperatureColors(5f, 5f, 5f, 5f)
-        assertEquals(2, colors.size)
+    @Test fun `degenerate equal input yields valid all-white ramp`() {
+        val arc = temperatureArc(5f, 5f, 5f, 5f)
+        assertTrue(arc.max > arc.min)
+        assertTrue(arc.ramp.colors.size >= 2)
+        assertTrue(arc.ramp.colors.all { it == Color.WHITE })
+    }
+
+    // allocateBlocks
+
+    @Test fun `allocates by largest remainder`() {
+        assertEquals(listOf(2, 4, 1), allocateBlocks(floatArrayOf(5f, 13f, 3f), 7).toList())
+    }
+
+    @Test fun `total blocks always matches request`() {
+        assertEquals(7, allocateBlocks(floatArrayOf(0.1f, 20f, 0.1f), 7).sum())
+        assertEquals(7, allocateBlocks(floatArrayOf(1f, 1f, 1f), 7).sum())
     }
 }

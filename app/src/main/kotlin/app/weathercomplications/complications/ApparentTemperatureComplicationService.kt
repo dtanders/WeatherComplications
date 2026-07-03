@@ -8,8 +8,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
-import app.weathercomplications.util.temperatureColorRamp
-import app.weathercomplications.util.temperatureWeightedElements
+import app.weathercomplications.util.temperatureArc
 
 class ApparentTemperatureComplicationService : BaseWeatherComplicationService() {
 
@@ -33,9 +32,9 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 .setTitle(PlainComplicationText.Builder(formatter.formatTemperatureRange(-3.0, 18.0)).build())
                 .setMonochromaticImage(image)
                 .apply {
-                    //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        setColorRamp(temperatureColorRamp(-3f, 2f, 15f, 18f))
-                    //}
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        setColorRamp(temperatureArc(-3f, 2f, 15f, 18f).ramp)
+                    }
                 }
                 .build()
 
@@ -62,23 +61,31 @@ class ApparentTemperatureComplicationService : BaseWeatherComplicationService() 
                 .setMonochromaticImage(image).setTapAction(tapAction).build()
 
             ComplicationType.RANGED_VALUE -> {
-                val min = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
-                val max = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
-                val safeMax = if (max > min) max else min + 1f
-                val current =
-                    (data.current.apparentTemperature?.toFloat() ?: min).coerceIn(min, safeMax)
-                val tempTitle = formatter.formatTemperatureRange(min.toDouble(), max.toDouble())
+                val apparentMin = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
+                val apparentMax = data?.daily?.apparentTemperatureMax?.toFloat() ?: return null
+                val tempTitle = formatter.formatTemperatureRange(
+                    apparentMin.toDouble(), apparentMax.toDouble()
+                )
                 val airMin = data.daily.temperatureMin?.toFloat()
                 val airMax = data.daily.temperatureMax?.toFloat()
+                val hasRamp = airMin != null && airMax != null &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                val arc = if (hasRamp) {
+                    temperatureArc(apparentMin, airMin!!, airMax!!, apparentMax)
+                } else null
+                val min = arc?.min ?: apparentMin
+                val max = arc?.max ?: maxOf(apparentMax, apparentMin + 1f)
+                val current =
+                    (data.current.apparentTemperature?.toFloat() ?: min).coerceIn(min, max)
                 val builder = RangedValueComplicationData.Builder(
-                    value = current, min = min, max = safeMax,
+                    value = current, min = min, max = max,
                     contentDescription = PlainComplicationText.Builder(getString(R.string.apparent_temperature_range_description))
                         .build()
                 ).setText(PlainComplicationText.Builder(text).build())
                     .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setMonochromaticImage(image).setTapAction(tapAction)
-                if (airMin != null && airMax != null /*&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU*/) {
-                    builder.setColorRamp(temperatureColorRamp(min, airMin, airMax, safeMax))
+                if (arc != null) {
+                    builder.setColorRamp(arc.ramp)
                 }
                 builder.build()
             }

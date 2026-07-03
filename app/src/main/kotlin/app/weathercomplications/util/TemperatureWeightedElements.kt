@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.complications.data.ColorRamp
 import androidx.wear.watchface.complications.data.WeightedElementsComplicationData
-import kotlin.math.roundToInt
 
 internal const val COLOR_ORANGE = (255 shl 24) or (255 shl 16) or (140 shl 8)
 
@@ -44,56 +43,67 @@ fun temperatureWeightedElements(
 ): List<WeightedElementsComplicationData.Element> =
     buildTemperatureElements(apparentMin, airMin, currentApparent, airMax, apparentMax)
 
-internal const val MAX_COLOR_RAMP_STOPS = 8
+// ColorRamp allows at most 7 colors; non-interpolated ramps render as equal-sized blocks.
+internal const val MAX_COLOR_RAMP_BLOCKS = 7
 
+data class TemperatureArc(val min: Float, val max: Float, val ramp: ColorRamp)
+
+// Three segments over the widened range min(lows)..max(highs):
+// blue = |airMin − apparentMin| | white = middle | orange = |apparentMax − airMax|.
+// The 7 equal ramp blocks are allocated proportionally to the segment spans
+// (largest-remainder rounding), with at least one block per non-zero segment.
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal fun computeTemperatureColors(
-    apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float,
-    maxStops: Int = MAX_COLOR_RAMP_STOPS
-): IntArray {
-    val totalSpan = maxOf(apparentMax - apparentMin, 1f)
-    val numStops = minOf(maxOf(totalSpan.roundToInt() + 1, 2), maxStops)
-    Log.d(LOG_TAG, "totalSteps=${totalSpan} numStops=${numStops}")
-    return IntArray(numStops) { i ->
-        val temp = apparentMin + i * totalSpan / (numStops - 1)
-        Log.d(LOG_TAG, "temp=${temp}")
-        when {
-            temp < airMin -> Color.BLUE
-            temp > airMax -> COLOR_ORANGE
-            else -> Color.WHITE
-        }
-    }
+fun temperatureArc(
+    apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
+): TemperatureArc {
+    val lo = minOf(apparentMin, airMin)
+    val rawHi = maxOf(apparentMax, airMax)
+    val hi = maxOf(rawHi, lo + 1f)
+    val loEnd = maxOf(apparentMin, airMin).coerceIn(lo, hi)
+    // If the range had to be padded open, the padding reads as neutral middle, not heat.
+    val hiStart = if (hi > rawHi) hi else minOf(apparentMax, airMax).coerceIn(loEnd, hi)
+    val spans = floatArrayOf(loEnd - lo, hiStart - loEnd, hi - hiStart)
+    val segmentColors = intArrayOf(Color.BLUE, Color.WHITE, COLOR_ORANGE)
+    val blocks = allocateBlocks(spans, MAX_COLOR_RAMP_BLOCKS)
+    val colors = segmentColors.toList()
+        .flatMapIndexed { i, color -> List(blocks[i]) { color } }
+        .toIntArray()
+    Log.d(LOG_TAG, "arc lo=$lo loEnd=$loEnd hiStart=$hiStart hi=$hi blocks=${blocks.toList()}")
+    return TemperatureArc(lo, hi, ColorRamp(colors, interpolated = false))
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun temperatureColorRamp(
-    apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
-): ColorRamp = ColorRamp(
-    colors = computeTemperatureColors(apparentMin, airMin, airMax, apparentMax),
-    interpolated = false
-)
-
-// Builds a ramp whose stops are assigned by which of the 4 zones each equally-spaced
-// arc fraction falls in: blue (apparent cold) | gray (air-low→current) |
-// white (current→air-high) | orange (apparent heat).
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun goalProgressColorRamp(
-    apparentMin: Float, airMin: Float, currentApparent: Float, airMax: Float, apparentMax: Float
-): ColorRamp {
-    val totalSpan = maxOf(apparentMax - apparentMin, 1f)
-    val current = currentApparent.coerceIn(apparentMin, apparentMax)
-    val f1 = (airMin - apparentMin) / totalSpan
-    val f2 = (current - apparentMin) / totalSpan
-    val f3 = (airMax - apparentMin) / totalSpan
-    val maxStops = WeightedElementsComplicationData.getMaxElements()
-    val colors = IntArray(maxStops) { i ->
-        val fraction = i.toFloat() / (maxStops - 1)
-        when {
-            fraction < f1 -> Color.BLUE
-            fraction < f2 -> Color.GRAY
-            fraction < f3 -> Color.WHITE
-            else -> COLOR_ORANGE
-        }
+// Splits totalBlocks across spans proportionally: zero spans get zero blocks,
+// non-zero spans get at least one, remaining blocks go to the largest remainders.
+internal fun allocateBlocks(spans: FloatArray, totalBlocks: Int): IntArray {
+    val total = spans.sum()
+    if (total <= 0f) {
+        // Degenerate input: fall back to an all-white ramp (ColorRamp needs ≥2 colors).
+        return spans.indices.map { if (it == 1) 2 else 0 }.toIntArray()
     }
-    return ColorRamp(colors, interpolated = false)
+    val ideal = spans.map { it / total * totalBlocks }
+    val blocks = IntArray(spans.size) { i ->
+        if (spans[i] > 0f) maxOf(ideal[i].toInt(), 1) else 0
+    }
+    var remaining = totalBlocks - blocks.sum()
+    val byRemainder = ideal.indices
+        .filter { spans[it] > 0f }
+        .sortedByDescending { ideal[it] - ideal[it].toInt() }
+    var idx = 0
+    while (remaining > 0 && byRemainder.isNotEmpty()) {
+        blocks[byRemainder[idx % byRemainder.size]]++
+        remaining--
+        idx++
+    }
+    // Guaranteed minimums may have overshot the total; shrink the largest segments back.
+    while (remaining < 0) {
+        val largest = blocks.indices.filter { blocks[it] > 1 }.maxByOrNull { blocks[it] } ?: break
+        blocks[largest]--
+        remaining++
+    }
+    // ColorRamp requires at least 2 colors; pad the only non-zero segment if needed.
+    if (blocks.sum() < 2) {
+        val only = blocks.indices.first { blocks[it] > 0 }
+        blocks[only] = 2
+    }
+    return blocks
 }

@@ -7,7 +7,7 @@ import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import app.weathercomplications.R
 import app.weathercomplications.util.WeatherConditionIcon
 import app.weathercomplications.util.WeatherFormatter
-import app.weathercomplications.util.goalProgressColorRamp
+import app.weathercomplications.util.temperatureArc
 
 class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicationService() {
 
@@ -27,11 +27,10 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                 .setMonochromaticImage(image).build()
 
             ComplicationType.GOAL_PROGRESS -> {
-                val apparentMin = -3f
-                val apparentMax = 18f
+                val arc = temperatureArc(-3f, 2f, 15f, 18f)
                 GoalProgressComplicationData.Builder(
-                    value = maxOf(12.3f - apparentMin, 0f),
-                    targetValue = maxOf(apparentMax - apparentMin, 1f),
+                    value = (12.3f - arc.min).coerceIn(0f, arc.max - arc.min),
+                    targetValue = arc.max - arc.min,
                     contentDescription = PlainComplicationText.Builder(
                         getString(R.string.apparent_temperature_goal_description)
                     ).build()
@@ -40,7 +39,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                         formatter.formatTemperatureRange(-3.0, 18.0)
                     ).build())
                     .setMonochromaticImage(image)
-                    .setColorRamp(goalProgressColorRamp(apparentMin, 2f, 12.3f, 15f, apparentMax))
+                    .setColorRamp(arc.ramp)
                     .build()
             }
 
@@ -77,9 +76,10 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                 val tempTitle = formatter.formatTemperatureRange(
                     apparentMin.toDouble(), apparentMax.toDouble()
                 )
+                val arc = temperatureArc(apparentMin, airMin, airMax, apparentMax)
                 GoalProgressComplicationData.Builder(
-                    value = maxOf(currentApparent - apparentMin, 0f),
-                    targetValue = maxOf(apparentMax - apparentMin, 1f),
+                    value = (currentApparent - arc.min).coerceIn(0f, arc.max - arc.min),
+                    targetValue = arc.max - arc.min,
                     contentDescription = PlainComplicationText.Builder(
                         getString(R.string.apparent_temperature_goal_description)
                     ).build()
@@ -87,7 +87,7 @@ class ApparentTemperatureGoalProgressComplicationService : BaseWeatherComplicati
                     .setTitle(PlainComplicationText.Builder(tempTitle).build())
                     .setMonochromaticImage(image)
                     .setTapAction(tapAction)
-                    .setColorRamp(goalProgressColorRamp(apparentMin, airMin, currentApparent, airMax, apparentMax))
+                    .setColorRamp(arc.ramp)
                     .build()
             }
 
