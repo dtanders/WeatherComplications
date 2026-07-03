@@ -7,58 +7,57 @@ import org.junit.Test
 
 class TemperatureWeightedElementsTest {
 
-    // buildTemperatureElements — 4 proportional segments:
-    // [apparentMin→airMin] blue | [airMin→current] gray | [current→airMax] white | [airMax→apparentMax] orange
+    // buildTemperatureElements — 3 proportional segments over min(lows)..max(highs):
+    // blue |airMin−apparentMin| | white middle | orange |apparentMax−airMax|
 
-    private val elements = buildTemperatureElements(-3f, 2f, 12.3f, 15f, 18f)
+    private val elements = buildTemperatureElements(-3f, 2f, 15f, 18f)
 
-    @Test fun `returns four elements for typical range`() {
-        assertEquals(4, elements.size)
+    @Test fun `returns three elements for typical range`() {
+        assertEquals(3, elements.size)
     }
 
     @Test fun `weights sum to 1`() {
         assertEquals(1f, elements.sumOf { it.weight.toDouble() }.toFloat(), 0.001f)
     }
 
-    @Test fun `segment colors are blue gray white orange`() {
+    @Test fun `segment colors are blue white orange`() {
         assertEquals(Color.BLUE,   elements[0].color)
-        assertEquals(Color.GRAY,   elements[1].color)
-        assertEquals(Color.WHITE,  elements[2].color)
-        assertEquals(COLOR_ORANGE, elements[3].color)
+        assertEquals(Color.WHITE,  elements[1].color)
+        assertEquals(COLOR_ORANGE, elements[2].color)
     }
 
     @Test fun `weights are proportional to temperature spans`() {
         // span = 18 - (-3) = 21
-        // w1 = (2 - -3) / 21 = 5/21
-        // w2 = (12.3 - 2) / 21 = 10.3/21
-        // w3 = (15 - 12.3) / 21 = 2.7/21
-        // w4 = (18 - 15) / 21 = 3/21
+        // blue   = (2 - -3) / 21 = 5/21
+        // white  = (15 - 2) / 21 = 13/21
+        // orange = (18 - 15) / 21 = 3/21
         val span = 21f
-        assertEquals(5f / span,    elements[0].weight, 0.001f)
-        assertEquals(10.3f / span, elements[1].weight, 0.001f)
-        assertEquals(2.7f / span,  elements[2].weight, 0.001f)
-        assertEquals(3f / span,    elements[3].weight, 0.001f)
+        assertEquals(5f / span,  elements[0].weight, 0.001f)
+        assertEquals(13f / span, elements[1].weight, 0.001f)
+        assertEquals(3f / span,  elements[2].weight, 0.001f)
+    }
+
+    @Test fun `absolute differences when apparent range is inside air range`() {
+        // air 2..15 wider than apparent 5..13 → span = 13, gaps 3 and 2
+        val result = buildTemperatureElements(5f, 2f, 15f, 13f)
+        assertEquals(3, result.size)
+        assertEquals(3f / 13f, result[0].weight, 0.001f)
+        assertEquals(8f / 13f, result[1].weight, 0.001f)
+        assertEquals(2f / 13f, result[2].weight, 0.001f)
     }
 
     @Test fun `zero-span segments are omitted`() {
-        // current at airMin → gray segment collapses
-        val result = buildTemperatureElements(-3f, 2f, 2f, 15f, 18f)
-        assertEquals(3, result.size)
-        assertTrue(result.none { it.color == Color.GRAY })
+        // lows equal → blue segment collapses
+        val result = buildTemperatureElements(2f, 2f, 15f, 18f)
+        assertEquals(2, result.size)
+        assertTrue(result.none { it.color == Color.BLUE })
     }
 
-    @Test fun `current clamped when above apparentMax`() {
-        // current clamped to 18 → white segment (current→airMax) collapses
-        val result = buildTemperatureElements(-3f, 2f, 25f, 15f, 18f)
-        assertEquals(3, result.size)
-        assertTrue(result.none { it.color == Color.WHITE })
-    }
-
-    @Test fun `current clamped when below apparentMin`() {
-        // current clamped to -3 → gray segment (airMin→current) collapses
-        val result = buildTemperatureElements(-3f, 2f, -10f, 15f, 18f)
-        assertEquals(3, result.size)
-        assertTrue(result.none { it.color == Color.GRAY })
+    @Test fun `degenerate equal input yields single white element`() {
+        val result = buildTemperatureElements(5f, 5f, 5f, 5f)
+        assertEquals(1, result.size)
+        assertEquals(Color.WHITE, result[0].color)
+        assertEquals(1f, result[0].weight, 0.001f)
     }
 
     // temperatureArc — 3 segments over the widened range min(lows)..max(highs):

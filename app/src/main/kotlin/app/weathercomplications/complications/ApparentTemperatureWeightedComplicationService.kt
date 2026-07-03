@@ -27,7 +27,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                 .setMonochromaticImage(image).build()
 
             ComplicationType.WEIGHTED_ELEMENTS -> WeightedElementsComplicationData.Builder(
-                elements = temperatureWeightedElements(-3f, 2f, 12.3f, 15f, 18f),
+                elements = temperatureWeightedElements(-3f, 2f, 15f, 18f),
                 contentDescription = PlainComplicationText.Builder(
                     getString(R.string.apparent_temperature_weighted_description)
                 ).build()
@@ -62,8 +62,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                 .setMonochromaticImage(image).setTapAction(tapAction).build()
 
             ComplicationType.WEIGHTED_ELEMENTS -> {
-                val currentApparent = data?.current?.apparentTemperature?.toFloat() ?: return null
-                val apparentMin = data.daily?.apparentTemperatureMin?.toFloat() ?: return null
+                val apparentMin = data?.daily?.apparentTemperatureMin?.toFloat() ?: return null
                 val apparentMax = data.daily?.apparentTemperatureMax?.toFloat() ?: return null
                 val airMin = data.daily?.temperatureMin?.toFloat() ?: return null
                 val airMax = data.daily?.temperatureMax?.toFloat() ?: return null
@@ -71,7 +70,7 @@ class ApparentTemperatureWeightedComplicationService : BaseWeatherComplicationSe
                     apparentMin.toDouble(), apparentMax.toDouble()
                 )
                 WeightedElementsComplicationData.Builder(
-                    elements = temperatureWeightedElements(apparentMin, airMin, currentApparent, airMax, apparentMax),
+                    elements = temperatureWeightedElements(apparentMin, airMin, airMax, apparentMax),
                     contentDescription = PlainComplicationText.Builder(
                         getString(R.string.apparent_temperature_weighted_description)
                     ).build()

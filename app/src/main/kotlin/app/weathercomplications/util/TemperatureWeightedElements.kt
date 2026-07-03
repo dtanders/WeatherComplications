@@ -9,26 +9,35 @@ import androidx.wear.watchface.complications.data.WeightedElementsComplicationDa
 
 internal const val COLOR_ORANGE = (255 shl 24) or (255 shl 16) or (140 shl 8)
 
-// Four proportional segments: [apparentMin→airMin] [airMin→currentApparent]
-// [currentApparent→airMax] [airMax→apparentMax]. Zero-span segments are omitted.
+private val SEGMENT_COLORS = intArrayOf(Color.BLUE, Color.WHITE, COLOR_ORANGE)
+
+// Three zones over the widened range min(lows)..max(highs):
+// blue = |airMin − apparentMin| | white = middle | orange = |apparentMax − airMax|.
+internal class TemperatureZones(val min: Float, val max: Float, val spans: FloatArray)
+
+internal fun temperatureZones(
+    apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
+): TemperatureZones {
+    val lo = minOf(apparentMin, airMin)
+    val rawHi = maxOf(apparentMax, airMax)
+    val hi = maxOf(rawHi, lo + 1f)
+    val loEnd = maxOf(apparentMin, airMin).coerceIn(lo, hi)
+    // If the range had to be padded open, the padding reads as neutral middle, not heat.
+    val hiStart = if (hi > rawHi) hi else minOf(apparentMax, airMax).coerceIn(loEnd, hi)
+    return TemperatureZones(lo, hi, floatArrayOf(loEnd - lo, hiStart - loEnd, hi - hiStart))
+}
+
+// Exact proportional segments for WEIGHTED_ELEMENTS; zero-span zones are omitted.
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal fun buildTemperatureElements(
     apparentMin: Float,
     airMin: Float,
-    currentApparent: Float,
     airMax: Float,
     apparentMax: Float
 ): List<WeightedElementsComplicationData.Element> {
-    val current = currentApparent.coerceIn(apparentMin, apparentMax)
-    val spans = floatArrayOf(
-        maxOf(airMin - apparentMin, 0f),
-        maxOf(current - airMin, 0f),
-        maxOf(airMax - current, 0f),
-        maxOf(apparentMax - airMax, 0f)
-    )
-    val colors = intArrayOf(Color.BLUE, Color.GRAY, Color.WHITE, COLOR_ORANGE)
-    val total = spans.sum().coerceAtLeast(1f)
-    return spans.zip(colors.toList())
+    val zones = temperatureZones(apparentMin, airMin, airMax, apparentMax)
+    val total = zones.spans.sum()
+    return zones.spans.zip(SEGMENT_COLORS.toList())
         .filter { (w, _) -> w > 0f }
         .map { (w, c) -> WeightedElementsComplicationData.Element(w / total, c) }
 }
@@ -37,11 +46,10 @@ internal fun buildTemperatureElements(
 fun temperatureWeightedElements(
     apparentMin: Float,
     airMin: Float,
-    currentApparent: Float,
     airMax: Float,
     apparentMax: Float
 ): List<WeightedElementsComplicationData.Element> =
-    buildTemperatureElements(apparentMin, airMin, currentApparent, airMax, apparentMax)
+    buildTemperatureElements(apparentMin, airMin, airMax, apparentMax)
 
 // ColorRamp allows at most 7 colors; non-interpolated ramps render as equal-sized blocks.
 internal const val MAX_COLOR_RAMP_BLOCKS = 7
@@ -56,20 +64,13 @@ data class TemperatureArc(val min: Float, val max: Float, val ramp: ColorRamp)
 fun temperatureArc(
     apparentMin: Float, airMin: Float, airMax: Float, apparentMax: Float
 ): TemperatureArc {
-    val lo = minOf(apparentMin, airMin)
-    val rawHi = maxOf(apparentMax, airMax)
-    val hi = maxOf(rawHi, lo + 1f)
-    val loEnd = maxOf(apparentMin, airMin).coerceIn(lo, hi)
-    // If the range had to be padded open, the padding reads as neutral middle, not heat.
-    val hiStart = if (hi > rawHi) hi else minOf(apparentMax, airMax).coerceIn(loEnd, hi)
-    val spans = floatArrayOf(loEnd - lo, hiStart - loEnd, hi - hiStart)
-    val segmentColors = intArrayOf(Color.BLUE, Color.WHITE, COLOR_ORANGE)
-    val blocks = allocateBlocks(spans, MAX_COLOR_RAMP_BLOCKS)
-    val colors = segmentColors.toList()
+    val zones = temperatureZones(apparentMin, airMin, airMax, apparentMax)
+    val blocks = allocateBlocks(zones.spans, MAX_COLOR_RAMP_BLOCKS)
+    val colors = SEGMENT_COLORS.toList()
         .flatMapIndexed { i, color -> List(blocks[i]) { color } }
         .toIntArray()
-    Log.d(LOG_TAG, "arc lo=$lo loEnd=$loEnd hiStart=$hiStart hi=$hi blocks=${blocks.toList()}")
-    return TemperatureArc(lo, hi, ColorRamp(colors, interpolated = false))
+    Log.d(LOG_TAG, "arc min=${zones.min} max=${zones.max} spans=${zones.spans.toList()} blocks=${blocks.toList()}")
+    return TemperatureArc(zones.min, zones.max, ColorRamp(colors, interpolated = false))
 }
 
 // Splits totalBlocks across spans proportionally: zero spans get zero blocks,
